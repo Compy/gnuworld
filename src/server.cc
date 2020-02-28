@@ -274,11 +274,16 @@ if ( tlsItr == conf.end() || tlsItr->second != "yes" )
 	tlsEnabled = true ;
 
 	// If TLS is enabled, parse the other configuration options
-	tlsKeyFile = conf.Require( "tlsKeyFile" ) ;
-	tlsCertFile = conf.Require( "tlsCertFile" ) ;
+	tlsKeyFile = conf.Require( "tlsKeyFile" )->second ;
+	tlsCertFile = conf.Require( "tlsCertFile" )->second ;
 }
 
 return true ;
+}
+
+bool xServer::initTls()
+{
+	
 }
 
 bool xServer::loadCommandHandlers()

@@ -109,7 +109,8 @@ handlerMap.clear() ;
 
 Connection* ConnectionManager::Connect( ConnectionHandler* hPtr,
 	const string& host,
-	const unsigned short int remotePort )
+	const unsigned short int remotePort,
+	bool tlsEnabled = false )
 {
 // Handler must be valid
 assert( hPtr != 0 ) ;
@@ -128,7 +129,7 @@ if( host.empty() )
 
 // Allocate a new Connection object
 Connection* newConnection = new (nothrow)
-	Connection( host, remotePort, delimiter ) ;
+	Connection( host, remotePort, delimiter, tlsEnabled ) ;
 assert( newConnection != 0 ) ;
 
 // Set the absolute time for this Connection's timeout to occur
@@ -183,6 +184,12 @@ addr->sin_addr.s_addr = inet_addr( newConnection->getIP().c_str() ) ;
 
 // Update the new Connection object
 newConnection->setSockFD( sockFD ) ;
+
+if (tlsEnabled) {
+	SSL_set_fd(newConnection->getTlsState(), sockFD);
+	BIO_set_nbio(SSL_get_rbio(newConnection->getTlsState()), 1);
+	BIO_set_nbio(SSL_get_wbio(newConnection->getTlsState()), 1);
+}
 
 // Attempt to initiate the connect.
 // The socket is non-blocking, so a failure is expected
@@ -1109,10 +1116,17 @@ if( cPtr->isFlush() )
 	}
 
 errno = 0 ;
-int writeResult = ::send( cPtr->getSockFD(),
-	cPtr->outputBuffer.data(),
-	cPtr->outputBuffer.size(),
-	0 ) ;
+int writeResult = 0;
+if ( !cPtr->isTLS()) {
+	writeResult = ::send( cPtr->getSockFD(),
+		cPtr->outputBuffer.data(),
+		cPtr->outputBuffer.size(),
+		0 ) ;
+} else {
+	writeResult = SSL_write(cPtr->getTlsState(),
+		cPtr->outputBuffer.data(),
+		cPtr->outputBuffer.size()) ;
+}
 
 if( (ENOBUFS == errno) || (EWOULDBLOCK == errno) || (EAGAIN == errno) )
 	{

@@ -1518,6 +1518,11 @@ protected:
 	bool		loadCommandHandlers() ;
 
 	/**
+	 * This method initializes all of the TLS contexts
+	 */
+	bool		initTls() ;
+
+	/**
 	 * Load an individual command handler from a file (fileName),
 	 * and associate that handler with the network message
 	 * (commandKey).
