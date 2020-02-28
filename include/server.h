@@ -1265,6 +1265,12 @@ protected:
 	long			Version ;
 
 	/**
+	 * Whether or not TLS encrypted connections are enabled (and required)
+	 * for the server uplink
+	 */
+	bool			tlsEnabled ;
+
+	/**
 	 * This variable is true when this server is bursting.
 	 */
 	bool			bursting ;
@@ -1460,6 +1466,16 @@ protected:
 	 * the SQ message.
 	 */
 	std::string	shutDownReason ;
+
+	/**
+	 * The path to the TLS key file
+	 */
+	std::string tlsKeyFile ;
+
+	/**
+	 * The path to the TLS cert file
+	 */
+	std::string tlsCertFile ;
 
 	/**
 	 * The char array to be used to read in network data.

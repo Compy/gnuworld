@@ -265,6 +265,19 @@ glineUpdateInterval = static_cast< time_t >( atoi(
 pingUpdateInterval = static_cast< time_t >( atoi(
 	conf.Require( "pingupdateinterval" )->second.c_str() ) ) ;
 
+// Check TLS configuration settings
+EConfig::const_iterator tlsItr = conf.Find( "tls" ) ;
+if ( tlsItr == conf.end() || tlsItr->second != "yes" )
+{
+	tlsEnabled = false ;
+} else {
+	tlsEnabled = true ;
+
+	// If TLS is enabled, parse the other configuration options
+	tlsKeyFile = conf.Require( "tlsKeyFile" ) ;
+	tlsCertFile = conf.Require( "tlsCertFile" ) ;
+}
+
 return true ;
 }
 
