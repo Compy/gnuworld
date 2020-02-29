@@ -35,7 +35,7 @@
 #include	<ctime>
 
 #include	<openssl/err.h>
-#include	<opnessl/rand.h>
+#include	<openssl/rand.h>
 #include	<openssl/ssl.h>
 
 #include	"Connection.h"

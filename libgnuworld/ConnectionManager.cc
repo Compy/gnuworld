@@ -186,9 +186,16 @@ addr->sin_addr.s_addr = inet_addr( newConnection->getIP().c_str() ) ;
 newConnection->setSockFD( sockFD ) ;
 
 if (tlsEnabled) {
-	SSL_set_fd(newConnection->getTlsState(), sockFD);
-	BIO_set_nbio(SSL_get_rbio(newConnection->getTlsState()), 1);
-	BIO_set_nbio(SSL_get_wbio(newConnection->getTlsState()), 1);
+	SSL* state = SSL_new(sslCtx);
+	if (!state) {
+		elog << "Connect> Could not create SSL session" << endl;
+		return 0;
+	}
+	newConnection->setTlsState(state);
+	SSL_set_fd(state, sockFD);
+	BIO_set_nbio(SSL_get_rbio(state), 1);
+	BIO_set_nbio(SSL_get_wbio(state), 1);
+	SSL_set_connect_state(state);
 }
 
 // Attempt to initiate the connect.
@@ -1031,11 +1038,15 @@ if( cPtr->isFile() )
 		inputBufferSize ) ;
 	}
 else
-	{
+{
 	// Network connection
+	if (cPtr->isTLS()) {
+		readResult = SSL_read(cPtr->getTlsState(), inputBuffer, inputBufferSize);
+	} else {
 	readResult = ::recv( cPtr->getSockFD(), inputBuffer,
 		inputBufferSize, 0 ) ;
 	}
+}
 
 if( EAGAIN == errno )
 	{
@@ -1691,7 +1702,7 @@ if( fd < 0 )
 
 // Create a new Connection object to represent this open file
 Connection* newConnect = new (std::nothrow)
-	Connection( fileName, fd, delimiter ) ;
+	Connection( fileName, fd, delimiter, false ) ;
 assert( newConnect != 0 ) ;
 
 // Set the Connection's state

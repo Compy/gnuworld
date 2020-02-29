@@ -34,7 +34,7 @@
 #include	<iostream>
 
 #include	<openssl/err.h>
-#include	<opnessl/rand.h>
+#include	<openssl/rand.h>
 #include	<openssl/ssl.h>
 
 #include	"Buffer.h"
@@ -431,6 +431,9 @@ protected:
 	 */
 	inline SSL*		getTlsState() const
 		{ return tlsState ; }
+	
+	inline void		setTlsState(SSL* newState)
+		{ tlsState = newState ; }
 
 	/**
 	 * The remote hostname of this connection

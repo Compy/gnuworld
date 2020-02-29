@@ -20,12 +20,12 @@ libgnuworldcore_la_SOURCES = Channel.cc \
 libgnuworldcore_la_CXXFLAGS = -I${top_srcdir}/include \
 	-I${top_srcdir}/libgnuworld
 libgnuworldcore_la_DEPENDENCIES = $(LIBGNUWORLD) $(LIBLTDL)
-libgnuworldcore_la_LDFLAGS = $(LIBGNUWORLD) $(LIBLTDL) -export-dynamic
+libgnuworldcore_la_LDFLAGS = $(LIBGNUWORLD) $(LIBLTDL) -export-dynamic -lssl
 
 bin_PROGRAMS = gnuworld
 gnuworld_SOURCES = main.cc
 
 gnuworld_CXXFLAGS = -I${top_srcdir}/include -I${top_srcdir}/libgnuworld
 gnuworld_LDFLAGS = libgnuworldcore.la $(LIBLTDL) -export-dynamic \
-	$(threadLib) $(LIBGNUWORLD)
+	$(threadLib) $(LIBGNUWORLD) -lssl
 gnuworld_DEPENDENCIES = $(LIBGNUWORLD) $(LIBLTDL) libgnuworldcore.la
