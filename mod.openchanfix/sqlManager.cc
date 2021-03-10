@@ -67,19 +67,32 @@ return new sqlManager(_dbString);
 /**
  * This method creates and returns a connection to the database.
  * It will use the stored dbString to create the connection.
+ * 
+ * Optionally you can opt to not exit on failure and return a nullptr instead.
  */
-dbHandle* sqlManager::getConnection()
+dbHandle* sqlManager::getConnection(bool exitOnFailure)
 {
 elog << "*** [sqlManager:getConnection] Attempting DB connection to: "
   << dbString << std::endl;
-
-dbHandle* tempCon = new (std::nothrow) dbHandle(dbString);
+dbHandle* tempCon;
+try {
+tempCon = new (std::nothrow) dbHandle(dbString);
+} catch(...) {
+  elog << "*** DB EXCEPTION DURING CONNECTION ***" << std::endl;
+  return nullptr;
+}
+elog << "*** [sqlManager:getConnection] Created new handle" << std::endl;
 assert(tempCon != 0);
-
+elog << "*** [sqlManager:getConnection] Checking if connection is bad" << std::endl;
 if(tempCon->ConnectionBad()) {
   elog << "*** [sqlManager:getConnection] Unable to connect to DB: "
     << tempCon->ErrorMessage() << std::endl;
-  ::exit(0);
+  if (exitOnFailure)
+    ::exit(0);
+  else {
+    elog << "*** [sqlManager:getConnection] Crap" << std::endl;
+    return nullptr;
+  }
 } else {
   elog << "*** [sqlManager:getConnection] Connection established to DB."
     << std::endl;

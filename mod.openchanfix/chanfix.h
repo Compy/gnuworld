@@ -435,6 +435,7 @@ public:
 	authMapType	authMap;
 
 	void loadTranslationTable();
+	void checkDBConnection();
 
 	const std::string getResponse(sqlcfUser*, int, std::string = std::string());
 

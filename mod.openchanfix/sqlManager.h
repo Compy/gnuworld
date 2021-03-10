@@ -44,7 +44,7 @@ class sqlManager {
     static sqlManager* getInstance(const std::string&);
 
     /** Allow checking out of database connections */
-    dbHandle* getConnection();
+    dbHandle* getConnection(bool exitOnFailure = true);
 
     /** Allow checking in of database connections */
     void removeConnection(dbHandle*);

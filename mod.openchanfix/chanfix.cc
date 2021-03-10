@@ -559,7 +559,7 @@ else if (theTimer == tidAutoFix) {
   tidAutoFix = MyUplink->RegisterTimer(theTime, this, NULL);
   }
 else if (theTimer == tidCheckDB) {
-  /*checkDBConnection();*/
+  checkDBConnection();
 
   /* Refresh Timer */
   theTime = time(NULL) + connectCheckFreq;
@@ -3524,68 +3524,45 @@ for(chanOpsType::iterator ptr = opList.begin(); ptr != opList.end(); ptr++) {
 */
 }
 
-/*void chanfix::checkDBConnection()
+/**
+ * @brief Every so often, check the DB connection to make sure we're still alive.
+ * If not, page the admin channel and attempt to reconnect
+ * 
+ */
+void chanfix::checkDBConnection()
 {
-if (cacheCon->Status() == CONNECTION_BAD) { //Check if the connection has died
-  delete(cacheCon);
-  dbConnected = false;
-  updateSQLDb(NULL);
-  MsgChanLog("PANIC! - The Connection With The Db Was Lost\n");
-  MsgChanLog("Attempting to reconnect, Attempt %d out of %d\n",
-	     connectCount+1,connectRetry+1);
-  std::string Query = "host=" + sqlHost + " dbname=" + sqlDB + " port=" + sqlPort;
-  if (strcasecmp(sqlcfUser,"''"))
-    Query += (" user=" + sqlcfUser);
-  if (strcasecmp(sqlPass,"''"))
-    Query += (" password=" + sqlPass);
-  theManager = new (std::nothrow) cmDatabase(Query.c_str());
-  assert(theManager != NULL);
+  // Execute a misc. query so that we can poke the DB backend and capture the actual
+  // state of the database.
+  localDBHandle->Exec("SELECT count(*) FROM pg_tables WHERE tablename = 'chanOpsBackup'",true);
+  if (localDBHandle->ConnectionBad()) {
+    logAdminMessage("!PANIC! The database has gone away. Attempting to reconnect...");
 
-  if (theManager->ConnectionBad()) {
-    ++connectCount;
-    if (connectCount > connectRetry) {
-      MsgChanLog("Cant connect to the database, quiting\n");
-      ::exit(1);
+    // Try to fetch a new db connection, but make sure we don't exit on failure
+    dbHandle* newHandle = theManager->getConnection(false);
+
+    if (newHandle != nullptr && !newHandle->ConnectionBad()) {
+      // Purge the old db handle
+      theManager->removeConnection(localDBHandle);
+      localDBHandle = newHandle;
+      // If an update is marked as in progress at this point, we must have missed a sync. So we need to
+      // force an update
+      if (updateInProgress) {
+        logAdminMessage("Database connectivity has been restored. Forcing db sync since I missed one during the outage.");
+#ifdef CHANFIX_HAVE_BOOST_THREAD
+        ClassUpdateDB updateDB(*this);
+        boost::thread pthrd(updateDB);
+        pthrd.join();
+#else
+        updateDB();
+#endif /* CHANFIX_HAVE_BOOST_THREAD */
+      } else {
+        logAdminMessage("Database connectivity has been restored.");
+      }
     } else {
-      MsgChanLog("Attempt failed\n");
+      logAdminMessage("Database reconnection failed.");
     }
-  } else {
-    dbConnected = true;
-    MsgChanLog("The PANIC is over, db connection restored\n");
-    updateSqldb(theManager);
-    connectCount = 0;
   }
 }
-
-}
-
-void chanfix::updateSQLDb(dbHandle* _SQLDb)
-{
-for(glineIterator ptr = glineList.begin();ptr != glineList.end();++ptr)
-	{
-	(ptr->second)->setSqldb(_SQLDb);
-	}
-
-for(glineIterator ptr = rnGlineList.begin();ptr != rnGlineList.end();++ptr)
-	{
-	(ptr->second)->setSqldb(_SQLDb);
-	}
-
-for(exceptionIterator ptr = exception_begin();ptr != exception_end();++ptr)
-	{
-	(*ptr)->setSqldb(_SQLDb);
-	}
-
-for(usersIterator ptr = usersMap.begin();ptr != usersMap.end();++ptr)
-	{
-	ptr->second->setSqldb(_SQLDb);
-	}
-
-for(serversIterator ptr = serversMap.begin();ptr != serversMap.end();++ptr)
-	{
-	ptr->second->setSqldb(_SQLDb);
-	}
-}*/
 
 void Command::Usage( iClient* theClient )
 {
