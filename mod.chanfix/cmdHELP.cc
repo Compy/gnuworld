@@ -17,8 +17,8 @@
  * USA.
  */
 
-#include "chanfix.h"
 #include "chanfix-commands.h"
+#include "chanfix.h"
 
 namespace gnuworld {
 

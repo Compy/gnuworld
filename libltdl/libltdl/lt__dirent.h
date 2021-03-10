@@ -32,51 +32,49 @@ or obtained by writing to the Free Software Foundation, Inc.,
 #define LT__DIRENT_H 1
 
 #if defined(LT_CONFIG_H)
-#  include LT_CONFIG_H
+#include LT_CONFIG_H
 #else
-#  include <config.h>
+#include <config.h>
 #endif
 
 #include "lt_system.h"
 
 #ifdef HAVE_DIRENT_H
 /* We have a fully operational dirent subsystem.  */
-#  include <dirent.h>
-#  define D_NAMLEN(dirent) (strlen((dirent)->d_name))
+#include <dirent.h>
+#define D_NAMLEN(dirent) (strlen((dirent)->d_name))
 
 #elif defined __WINDOWS__
 /* Use some wrapper code to emulate dirent on windows..  */
-#  define WINDOWS_DIRENT_EMULATION 1
+#define WINDOWS_DIRENT_EMULATION 1
 
-#  include <windows.h>
+#include <windows.h>
 
-#  define D_NAMLEN(dirent)	(strlen((dirent)->d_name))
-#  define dirent		lt__dirent
-#  define DIR			lt__DIR
-#  define opendir		lt__opendir
-#  define readdir		lt__readdir
-#  define closedir		lt__closedir
+#define D_NAMLEN(dirent) (strlen((dirent)->d_name))
+#define dirent lt__dirent
+#define DIR lt__DIR
+#define opendir lt__opendir
+#define readdir lt__readdir
+#define closedir lt__closedir
 
 LT_BEGIN_C_DECLS
 
-struct dirent
-{
-  char d_name[LT_FILENAME_MAX];
-  int  d_namlen;
+struct dirent {
+    char d_name[LT_FILENAME_MAX];
+    int d_namlen;
 };
 
 typedef struct
 {
-  HANDLE hSearch;
-  WIN32_FIND_DATA Win32FindData;
-  BOOL firsttime;
-  struct dirent file_info;
+    HANDLE hSearch;
+    WIN32_FIND_DATA Win32FindData;
+    BOOL firsttime;
+    struct dirent file_info;
 } DIR;
 
-
-LT_SCOPE DIR *		opendir		(const char *path);
-LT_SCOPE struct dirent *readdir		(DIR *entry);
-LT_SCOPE void		closedir	(DIR *entry);
+LT_SCOPE DIR* opendir(const char* path);
+LT_SCOPE struct dirent* readdir(DIR* entry);
+LT_SCOPE void closedir(DIR* entry);
 
 LT_END_C_DECLS
 

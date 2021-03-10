@@ -20,24 +20,22 @@
  * It is used as a quick reference to logged in users and for checking warnings
  */
 
-#include "gnuworld_config.h"
 #include "netData.h"
+#include "gnuworld_config.h"
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-namespace ns
-{
+namespace ns {
 
-netData::netData() :
-  authedUser(0),
-  warned(0)
-{
-}
+    netData::netData()
+        : authedUser(0)
+        , warned(0)
+    {
+    }
 
-netData::~netData()
-{
-}
+    netData::~netData()
+    {
+    }
 
 } // namespace ns
 

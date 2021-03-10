@@ -21,18 +21,17 @@
  * $Id: ConnectionHandler.cc,v 1.3 2003/08/05 01:59:14 dan_karrels Exp $
  */
 
-#include	<string>
-#include	<iostream>
+#include <iostream>
+#include <string>
 
-#include	"ConnectionHandler.h"
-#include	"Connection.h"
+#include "Connection.h"
+#include "ConnectionHandler.h"
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-using std::string ;
-using std::cout ;
-using std::endl ;
+using std::cout;
+using std::endl;
+using std::string;
 
 /**
  * These methods are empty.
@@ -40,46 +39,48 @@ using std::endl ;
  */
 
 ConnectionHandler::ConnectionHandler()
-{}
+{
+}
 
 ConnectionHandler::~ConnectionHandler()
-{}
-
-void ConnectionHandler::OnConnect( Connection* cPtr )
 {
-cout	<< "ConnectionHandler::OnConnect> "
-	<< *cPtr
-	<< endl ;
 }
 
-void ConnectionHandler::OnConnectFail( Connection* cPtr )
+void ConnectionHandler::OnConnect(Connection* cPtr)
 {
-cout	<< "ConnectionHandler::OnConnectFail> "
-	<< *cPtr
-	<< endl ;
+    cout << "ConnectionHandler::OnConnect> "
+         << *cPtr
+         << endl;
 }
 
-void ConnectionHandler::OnRead( Connection*, const string& )
+void ConnectionHandler::OnConnectFail(Connection* cPtr)
 {
-//cout	<< "ConnectionHandler::OnRead> "
-//	<< *cPtr
-//	<< ", line: "
-//	<< line
-//	<< endl ;
+    cout << "ConnectionHandler::OnConnectFail> "
+         << *cPtr
+         << endl;
 }
 
-void ConnectionHandler::OnDisconnect( Connection* cPtr )
+void ConnectionHandler::OnRead(Connection*, const string&)
 {
-cout	<< "ConnectionHandler::OnDisconnect> "
-	<< *cPtr
-	<< endl ;
+    //cout	<< "ConnectionHandler::OnRead> "
+    //	<< *cPtr
+    //	<< ", line: "
+    //	<< line
+    //	<< endl ;
 }
 
-void ConnectionHandler::OnTimeout( Connection* cPtr )
+void ConnectionHandler::OnDisconnect(Connection* cPtr)
 {
-cout	<< "ConnectionHandler::OnTimeout> "
-	<< *cPtr
-	<< endl ;
+    cout << "ConnectionHandler::OnDisconnect> "
+         << *cPtr
+         << endl;
+}
+
+void ConnectionHandler::OnTimeout(Connection* cPtr)
+{
+    cout << "ConnectionHandler::OnTimeout> "
+         << *cPtr
+         << endl;
 }
 
 } // namespace gnuworld

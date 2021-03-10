@@ -25,25 +25,23 @@
 #ifndef __SQLPENDINGTRAFFIC_H
 #define __SQLPENDINGTRAFFIC_H "$Id: sqlPendingTraffic.h,v 1.4 2007/08/28 16:10:12 dan_karrels Exp $"
 
-#include	"dbHandle.h"
- 
-namespace gnuworld
-{ 
- 
-class sqlPendingTraffic
-{
+#include "dbHandle.h"
+
+namespace gnuworld {
+
+class sqlPendingTraffic {
 
 public:
-	sqlPendingTraffic(dbHandle*);
-	bool insertRecord();
-	bool commit();
+    sqlPendingTraffic(dbHandle*);
+    bool insertRecord();
+    bool commit();
 
-	unsigned int channel_id; 
-	string ip_number;
-	unsigned int join_count; 
+    unsigned int channel_id;
+    string ip_number;
+    unsigned int join_count;
 
-	dbHandle*	SQLDb;
+    dbHandle* SQLDb;
 };
 
 }
-#endif // __SQLPENDINGTRAFFIC_H 
+#endif // __SQLPENDINGTRAFFIC_H

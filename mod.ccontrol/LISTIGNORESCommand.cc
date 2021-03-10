@@ -20,28 +20,25 @@
  * $Id: LISTIGNORESCommand.cc,v 1.10 2006/09/26 17:35:59 kewlio Exp $
  */
 
-#include	<string>
-#include	<cstdlib>
-#include	"ccontrol.h"
-#include	"CControlCommands.h"
-#include	"gnuworld_config.h"
+#include "CControlCommands.h"
+#include "ccontrol.h"
+#include "gnuworld_config.h"
+#include <cstdlib>
+#include <string>
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-using std::string ;
-using std::endl ;
+using std::endl;
+using std::string;
 
-namespace uworld
-{
+namespace uworld {
 
-bool LISTIGNORESCommand::Exec( iClient* theClient, const string& )
-{
-bot->MsgChanLog("LISTIGNORES \n");
-bot->listIgnores(theClient);
-return true;
-}
+    bool LISTIGNORESCommand::Exec(iClient* theClient, const string&)
+    {
+        bot->MsgChanLog("LISTIGNORES \n");
+        bot->listIgnores(theClient);
+        return true;
+    }
 
 }
 } // namespace gnuworld
-

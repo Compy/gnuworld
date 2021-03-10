@@ -26,283 +26,253 @@
  * $Id: UNBANCommand.cc,v 1.22 2009/06/25 19:05:23 mrbean_ Exp $
  */
 
-#include	<string>
-#include	<sstream>
-#include	<iostream>
+#include <iostream>
+#include <sstream>
+#include <string>
 
-#include	"StringTokenizer.h"
-#include	"ELog.h"
-#include	"cservice.h"
-#include	"Network.h"
-#include	"levels.h"
-#include	"responses.h"
-#include	"match.h"
-#include	"banMatcher.h"
+#include "ELog.h"
+#include "Network.h"
+#include "StringTokenizer.h"
+#include "banMatcher.h"
+#include "cservice.h"
+#include "levels.h"
+#include "match.h"
+#include "responses.h"
 
-namespace gnuworld
-{
-using std::string ;
-using std::endl ;
-using std::ends ;
-using std::stringstream ;
+namespace gnuworld {
+using std::endl;
+using std::ends;
+using std::string;
+using std::stringstream;
 
 using namespace level;
 
-bool UNBANCommand::Exec( iClient* theClient, const string& Message )
+bool UNBANCommand::Exec(iClient* theClient, const string& Message)
 {
-bot->incStat("COMMANDS.UNBAN");
+    bot->incStat("COMMANDS.UNBAN");
 
-StringTokenizer st( Message ) ;
+    StringTokenizer st(Message);
 
-if( st.size() < 3 )
-	{
-    Usage(theClient);
-    return true;
-	}
+    if (st.size() < 3) {
+        Usage(theClient);
+        return true;
+    }
 
-// Is the user authorised?
+    // Is the user authorised?
 
-sqlUser* theUser = bot->isAuthed(theClient, true);
-if(!theUser)
-	{
-	return false;
-	}
+    sqlUser* theUser = bot->isAuthed(theClient, true);
+    if (!theUser) {
+        return false;
+    }
 
-/* Is the channel registered? */
+    /* Is the channel registered? */
 
-sqlChannel* theChan = bot->getChannelRecord(st[1]);
-if(!theChan)
-	{
-	bot->Notice(theClient,
-		bot->getResponse(theUser,
-		language::chan_not_reg,
-		string("Sorry, %s isn't registered with me.")).c_str(),
-	st[1].c_str());
+    sqlChannel* theChan = bot->getChannelRecord(st[1]);
+    if (!theChan) {
+        bot->Notice(theClient,
+            bot->getResponse(theUser,
+                   language::chan_not_reg,
+                   string("Sorry, %s isn't registered with me."))
+                .c_str(),
+            st[1].c_str());
 
-	return false;
-	}
+        return false;
+    }
 
-/* Check the bot is in the channel. */
+    /* Check the bot is in the channel. */
 
-if (!theChan->getInChan())
-	{
-	bot->Notice(theClient,
-		bot->getResponse(theUser,
-			language::i_am_not_on_chan,
-			string("I'm not in that channel!")));
-	return false;
-	}
+    if (!theChan->getInChan()) {
+        bot->Notice(theClient,
+            bot->getResponse(theUser,
+                language::i_am_not_on_chan,
+                string("I'm not in that channel!")));
+        return false;
+    }
 
-Channel* theChannel = Network->findChannel(theChan->getName());
-if (!theChannel)
-	{
-	bot->Notice(theClient,
-		bot->getResponse(theUser, language::chan_is_empty).c_str(),
-		theChan->getName().c_str());
-	return false;
-	}
+    Channel* theChannel = Network->findChannel(theChan->getName());
+    if (!theChannel) {
+        bot->Notice(theClient,
+            bot->getResponse(theUser, language::chan_is_empty).c_str(),
+            theChan->getName().c_str());
+        return false;
+    }
 
-/*
+    /*
  * Check we're actually opped first..
  */
 
-ChannelUser* tmpBotUser = theChannel->findUser(bot->getInstance());
-if (!tmpBotUser) return false;
-if(!tmpBotUser->getMode(ChannelUser::MODE_O))
-		{
-		bot->Notice(theClient, bot->getResponse(theUser,
-			language::im_not_opped, "I'm not opped in %s").c_str(),
-			theChan->getName().c_str());
-		return false;
-		}
+    ChannelUser* tmpBotUser = theChannel->findUser(bot->getInstance());
+    if (!tmpBotUser)
+        return false;
+    if (!tmpBotUser->getMode(ChannelUser::MODE_O)) {
+        bot->Notice(theClient, bot->getResponse(theUser, language::im_not_opped, "I'm not opped in %s").c_str(),
+            theChan->getName().c_str());
+        return false;
+    }
 
-// Check level.
+    // Check level.
 
-int level = bot->getEffectiveAccessLevel(theUser, theChan, true);
-if(level < level::unban)
-	{
-	bot->Notice(theClient,
-		bot->getResponse(theUser,
-			language::insuf_access,
-			string("Sorry, you have insufficient access to "
-				"perform that command.")));
-	return false;
-	}
+    int level = bot->getEffectiveAccessLevel(theUser, theChan, true);
+    if (level < level::unban) {
+        bot->Notice(theClient,
+            bot->getResponse(theUser,
+                language::insuf_access,
+                string("Sorry, you have insufficient access to "
+                       "perform that command.")));
+        return false;
+    }
 
-/*
+    /*
  *  Are they trying to unban by nick or hostmask?
  */
-bool isNick = validUserMask(fixAddress(st[2])) ? false : true ;
+    bool isNick = validUserMask(fixAddress(st[2])) ? false : true;
 
-/* Try by nickname first, remove any bans that match this users host */
-string banTarget ;
-if( isNick )
-	{
-	iClient* aNick = Network->findNick(st[2]);
-	if(!aNick)
-		{
-		bot->Notice(theClient,
-			bot->getResponse(theUser,
-				language::cant_find_on_chan,
-				string("I can't find %s on channel %s")).c_str(),
-				st[2].c_str(),
-				theChan->getName().c_str());
-		return true;
-		}
+    /* Try by nickname first, remove any bans that match this users host */
+    string banTarget;
+    if (isNick) {
+        iClient* aNick = Network->findNick(st[2]);
+        if (!aNick) {
+            bot->Notice(theClient,
+                bot->getResponse(theUser,
+                       language::cant_find_on_chan,
+                       string("I can't find %s on channel %s"))
+                    .c_str(),
+                st[2].c_str(),
+                theChan->getName().c_str());
+            return true;
+        }
 
-	banTarget = Channel::createBan(aNick);
-	}
-else
-	{
-	banTarget = fixAddress(st[2]);
-	}
+        banTarget = Channel::createBan(aNick);
+    } else {
+        banTarget = fixAddress(st[2]);
+    }
 
-/*
+    /*
  *  Loop over all bans, removing any that match our target
  */
-std::map< int,sqlBan* >::iterator ptr = theChan->banList.begin();
+    std::map<int, sqlBan*>::iterator ptr = theChan->banList.begin();
 
-size_t banCount = 0;
-bool comparison = false;
-bool exactmatch = false;
-vector <sqlBan*> oldBans;
+    size_t banCount = 0;
+    bool comparison = false;
+    bool exactmatch = false;
+    vector<sqlBan*> oldBans;
 
-while (ptr != theChan->banList.end())
-	{
-	sqlBan* theBan = ptr->second;
-	/*
+    while (ptr != theChan->banList.end()) {
+        sqlBan* theBan = ptr->second;
+        /*
 	 * If we're matching by a users full host, reverse the way we check
 	 * banmask.
 	 */
 
-	/* do a (case insensitive) literal match */
-	exactmatch = !(strcasecmp(theBan->getBanMask(), banTarget));
+        /* do a (case insensitive) literal match */
+        exactmatch = !(strcasecmp(theBan->getBanMask(), banTarget));
 
-	if ( isNick )
-		{
-		comparison = !(match(theBan->getBanMask(), banTarget));
-		}
-	else
-		{
-		comparison = banMatch(banTarget, theBan->getBanMask());
-		}
+        if (isNick) {
+            comparison = !(match(theBan->getBanMask(), banTarget));
+        } else {
+            comparison = banMatch(banTarget, theBan->getBanMask());
+        }
 
-	if ( comparison )
-		{
-		/* Matches! remove this ban - if we can. */
-		if (theBan->getLevel() > level)
-			{
-			bot->Notice(theClient,
-				bot->getResponse(theUser,
-					language::cant_rem_ban,
-					string("You have insufficient access to remove the ban %s from %s's database")).c_str(),
-				theBan->getBanMask().c_str(),
-				theChan->getName().c_str());
-			}
-		else
-			{
-			/* if it's an exact match, we want to only remove that ban */
-			if (exactmatch)
-			{
-				oldBans.clear();
-				oldBans.push_back(theBan);
-				break;
-			} else {
-				oldBans.push_back(theBan);
-			}
-			}
-		} // if (banMatched)
-	++ptr;
+        if (comparison) {
+            /* Matches! remove this ban - if we can. */
+            if (theBan->getLevel() > level) {
+                bot->Notice(theClient,
+                    bot->getResponse(theUser,
+                           language::cant_rem_ban,
+                           string("You have insufficient access to remove the ban %s from %s's database"))
+                        .c_str(),
+                    theBan->getBanMask().c_str(),
+                    theChan->getName().c_str());
+            } else {
+                /* if it's an exact match, we want to only remove that ban */
+                if (exactmatch) {
+                    oldBans.clear();
+                    oldBans.push_back(theBan);
+                    break;
+                } else {
+                    oldBans.push_back(theBan);
+                }
+            }
+        } // if (banMatched)
+        ++ptr;
 
-	} // while()
-/*
+    } // while()
+    /*
  *  Remove all the matching bans
  */
- 
-vector<sqlBan*>::iterator banIterator = oldBans.begin();
-for( ; banIterator != oldBans.end() ; ++banIterator )
-	{
-	sqlBan* theBan = *banIterator ;
 
-	bot->UnBan(theChannel, theBan->getBanMask());
+    vector<sqlBan*>::iterator banIterator = oldBans.begin();
+    for (; banIterator != oldBans.end(); ++banIterator) {
+        sqlBan* theBan = *banIterator;
 
-	sqlChannel::sqlBanMapType::iterator sqlBanIterator =
-		theChan->banList.find( theBan->getID() ) ;
-	if( sqlBanIterator == theChan->banList.end() )
-		{
-		elog	<< "cservice::UNBAN> Unable to locate sqlBan, "
-			<< "id: "
-			<< theBan->getID()
-			<< "mask: "
-			<< theBan->getBanMask()
-			<< endl ;
-		continue ;
-		}
+        bot->UnBan(theChannel, theBan->getBanMask());
 
-	theChan->banList.erase( sqlBanIterator );
-	theBan->deleteRecord();
-	delete(theBan);
-	banCount++;
-	}
-	
-/*
+        sqlChannel::sqlBanMapType::iterator sqlBanIterator = theChan->banList.find(theBan->getID());
+        if (sqlBanIterator == theChan->banList.end()) {
+            elog << "cservice::UNBAN> Unable to locate sqlBan, "
+                 << "id: "
+                 << theBan->getID()
+                 << "mask: "
+                 << theBan->getBanMask()
+                 << endl;
+            continue;
+        }
+
+        theChan->banList.erase(sqlBanIterator);
+        theBan->deleteRecord();
+        delete (theBan);
+        banCount++;
+    }
+
+    /*
  *  Scan through the channel banlist too, and attempt to match any.
  */
 
-Channel::const_banIterator cPtr = theChannel->banList_begin();
-while (cPtr != theChannel->banList_end())
-	{
-	if ( isNick )
-		{
-		comparison = !(match((*cPtr), banTarget));
-		}
-	else
-		{
-		comparison = banMatch(banTarget, (*cPtr));
-		}
+    Channel::const_banIterator cPtr = theChannel->banList_begin();
+    while (cPtr != theChannel->banList_end()) {
+        if (isNick) {
+            comparison = !(match((*cPtr), banTarget));
+        } else {
+            comparison = banMatch(banTarget, (*cPtr));
+        }
 
-	if (exactmatch)
-		{		
-		/* if we matched exactly above, we want to match exactly here too */
-		comparison = !(strcasecmp((*cPtr), banTarget));
-		}
+        if (exactmatch) {
+            /* if we matched exactly above, we want to match exactly here too */
+            comparison = !(strcasecmp((*cPtr), banTarget));
+        }
 
-	if ( comparison )
-		{
-		// Can't call xClient::UnBan inside the loop it will
-		// modify without a return value.
-		stringstream s;
-		s	<< bot->getCharYYXXX()
-			<< " M " << theChannel->getName()
-			<< " -b " << (*cPtr)
-			<< ends;
-		bot->Write( s );
+        if (comparison) {
+            // Can't call xClient::UnBan inside the loop it will
+            // modify without a return value.
+            stringstream s;
+            s << bot->getCharYYXXX()
+              << " M " << theChannel->getName()
+              << " -b " << (*cPtr)
+              << ends;
+            bot->Write(s);
 
-		theChannel->removeBan(*cPtr);
-		cPtr = theChannel->banList_begin();
-		}
-	else
-		{
-		++cPtr;
-		}
+            theChannel->removeBan(*cPtr);
+            cPtr = theChannel->banList_begin();
+        } else {
+            ++cPtr;
+        }
 
-	} // while()
+    } // while()
 
-bot->Notice(theClient,
-	bot->getResponse(theUser,
-		language::bans_removed,
-		string("Removed %i bans that matched %s")).c_str(),
-	banCount, banTarget.c_str());
+    bot->Notice(theClient,
+        bot->getResponse(theUser,
+               language::bans_removed,
+               string("Removed %i bans that matched %s"))
+            .c_str(),
+        banCount, banTarget.c_str());
 
-// Send action opnotice to channel if OPLOG is enabled
-if (theChan->getFlag(sqlChannel::F_OPLOG))
-	bot->NoticeChannelOps(theChan->getName(),
-		"%s (%s) removed %i bans that matched %s",
-		theClient->getNickName().c_str(), theUser->getUserName().c_str(), banCount, banTarget.c_str());
+    // Send action opnotice to channel if OPLOG is enabled
+    if (theChan->getFlag(sqlChannel::F_OPLOG))
+        bot->NoticeChannelOps(theChan->getName(),
+            "%s (%s) removed %i bans that matched %s",
+            theClient->getNickName().c_str(), theUser->getUserName().c_str(), banCount, banTarget.c_str());
 
-return true;
-
+    return true;
 }
 
 } // namespace gnuworld.
-

@@ -23,52 +23,53 @@
  *
  * $Id: ADDNOTECommand.cc,v 1.5 2008/01/16 02:03:37 buzlip01 Exp $
  */
-#include "gnuworld_config.h"
-#include "chanfix.h"
-#include "responses.h"
 #include "StringTokenizer.h"
+#include "chanfix.h"
+#include "gnuworld_config.h"
+#include "responses.h"
 #include "sqlChannel.h"
 #include "sqlcfUser.h"
 
-namespace gnuworld
-{
-namespace cf
-{
-void ADDNOTECommand::Exec(iClient* theClient, sqlcfUser* theUser, const std::string& Message)
-{
-StringTokenizer st(Message);
+namespace gnuworld {
+namespace cf {
+    void ADDNOTECommand::Exec(iClient* theClient, sqlcfUser* theUser, const std::string& Message)
+    {
+        StringTokenizer st(Message);
 
-if (st[1][0] != '#') {
-  bot->SendTo(theClient,
-              bot->getResponse(theUser,
-                              language::invalid_channel_name,
-                              std::string("%s is an invalid channel name.")).c_str(),
-                                          st[1].c_str());
-  return;
-}
+        if (st[1][0] != '#') {
+            bot->SendTo(theClient,
+                bot->getResponse(theUser,
+                       language::invalid_channel_name,
+                       std::string("%s is an invalid channel name."))
+                    .c_str(),
+                st[1].c_str());
+            return;
+        }
 
-sqlChannel* theChan = bot->getChannelRecord(st[1]);
-if (!theChan) theChan = bot->newChannelRecord(st[1]);
+        sqlChannel* theChan = bot->getChannelRecord(st[1]);
+        if (!theChan)
+            theChan = bot->newChannelRecord(st[1]);
 
-if (!theChan->useSQL())
-  theChan->Insert(bot->getLocalDBHandle());
+        if (!theChan->useSQL())
+            theChan->Insert(bot->getLocalDBHandle());
 
-theChan->addNote(bot->getLocalDBHandle(), sqlChannel::EV_NOTE, theClient, st.assemble(2));
+        theChan->addNote(bot->getLocalDBHandle(), sqlChannel::EV_NOTE, theClient, st.assemble(2));
 
-bot->SendTo(theClient,
+        bot->SendTo(theClient,
             bot->getResponse(theUser,
-                            language::note_recorded,
-                            std::string("Note recorded for channel %s.")).c_str(),
-                                        theChan->getChannel().c_str());
+                   language::note_recorded,
+                   std::string("Note recorded for channel %s."))
+                .c_str(),
+            theChan->getChannel().c_str());
 
-bot->logAdminMessage("%s (%s) ADDNOTE %s %s",
-		     theUser ? theUser->getUserName().c_str() : theClient->getNickName().c_str(),
-		     theClient->getRealNickUserHost().c_str(),
-		     theChan->getChannel().c_str(), st.assemble(2).c_str());
+        bot->logAdminMessage("%s (%s) ADDNOTE %s %s",
+            theUser ? theUser->getUserName().c_str() : theClient->getNickName().c_str(),
+            theClient->getRealNickUserHost().c_str(),
+            theChan->getChannel().c_str(), st.assemble(2).c_str());
 
-bot->logLastComMessage(theClient, Message);
+        bot->logLastComMessage(theClient, Message);
 
-return;
-}
+        return;
+    }
 } // namespace cf
 } // namespace gnuworld

@@ -32,22 +32,22 @@ or obtained by writing to the Free Software Foundation, Inc.,
 #define LT__STRL_H 1
 
 #if defined(LT_CONFIG_H)
-#  include LT_CONFIG_H
+#include LT_CONFIG_H
 #else
-#  include <config.h>
+#include <config.h>
 #endif
 
-#include <string.h>
 #include "lt_system.h"
+#include <string.h>
 
 #if !defined(HAVE_STRLCAT)
-#  define strlcat(dst,src,dstsize) lt_strlcat(dst,src,dstsize)
-LT_SCOPE size_t lt_strlcat(char *dst, const char *src, const size_t dstsize);
+#define strlcat(dst, src, dstsize) lt_strlcat(dst, src, dstsize)
+LT_SCOPE size_t lt_strlcat(char* dst, const char* src, const size_t dstsize);
 #endif /* !defined(HAVE_STRLCAT) */
 
 #if !defined(HAVE_STRLCPY)
-#  define strlcpy(dst,src,dstsize) lt_strlcpy(dst,src,dstsize)
-LT_SCOPE size_t lt_strlcpy(char *dst, const char *src, const size_t dstsize);
+#define strlcpy(dst, src, dstsize) lt_strlcpy(dst, src, dstsize)
+LT_SCOPE size_t lt_strlcpy(char* dst, const char* src, const size_t dstsize);
 #endif /* !defined(HAVE_STRLCPY) */
 
 #endif /*!defined(LT__STRL_H)*/

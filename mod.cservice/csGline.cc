@@ -19,251 +19,241 @@
  *
  */
 
-#include	<sstream>
-#include	<string> 
+#include <sstream>
+#include <string>
 
-#include	<ctime>
-#include	<cstring> 
-#include	<cstdlib>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
 
-#include	"dbHandle.h"
-#include	"ELog.h"
-#include	"misc.h"
-#include	"csGline.h" 
-#include	"cservice.h"
-#include	"gnuworld_config.h"
+#include "ELog.h"
+#include "csGline.h"
+#include "cservice.h"
+#include "dbHandle.h"
+#include "gnuworld_config.h"
+#include "misc.h"
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-using std::string ; 
-using std::endl ; 
-using std::stringstream ;
-using std::ends ;
+using std::endl;
+using std::ends;
+using std::string;
+using std::stringstream;
 
 unsigned int csGline::numAllocated = 0;
 
 csGline::csGline(dbHandle* _SQLDb)
- : Id(),
-   AddedBy(),
-   AddedOn( 0 ),
-   Expires( 0 ),
-   LastUpdated( 0 ),
-   Reason(),
-   SQLDb( _SQLDb )
+    : Id()
+    , AddedBy()
+    , AddedOn(0)
+    , Expires(0)
+    , LastUpdated(0)
+    , Reason()
+    , SQLDb(_SQLDb)
 {
-++numAllocated;
+    ++numAllocated;
 }
 
 csGline::~csGline()
 {
---numAllocated;
+    --numAllocated;
 }
 
 bool csGline::Insert()
 {
-//First we gotta make sure, there is no old gline in the database
-static const char *Del = "DELETE FROM glines WHERE lower(host) = '";
+    //First we gotta make sure, there is no old gline in the database
+    static const char* Del = "DELETE FROM glines WHERE lower(host) = '";
 
-stringstream delQuery;
-delQuery	<< Del
-		<< escapeSQLChars(string_lower(Host)) << "'"
-		<< ends;
+    stringstream delQuery;
+    delQuery << Del
+             << escapeSQLChars(string_lower(Host)) << "'"
+             << ends;
 
+    if (!SQLDb->Exec(delQuery))
+    //if( PGRES_COMMAND_OK != status )
+    {
+        elog << "csGline::DeleteOnInsert> SQL Failure: "
+             << SQLDb->ErrorMessage()
+             << endl;
 
-if( !SQLDb->Exec( delQuery ) )
-//if( PGRES_COMMAND_OK != status ) 
-	{
-	elog	<< "csGline::DeleteOnInsert> SQL Failure: "
-		<< SQLDb->ErrorMessage()
-		<< endl ;
+        return false;
+    }
+    //Now insert the new one
+    static const char* Main = "INSERT INTO Glines (Host,AddedBy,AddedOn,ExpiresAt,LastUpdated,Reason) VALUES ('";
 
-	return false ;
-	}
-//Now insert the new one
-static const char *Main = "INSERT INTO Glines (Host,AddedBy,AddedOn,ExpiresAt,LastUpdated,Reason) VALUES ('";
+    stringstream theQuery;
+    theQuery << Main
+             << escapeSQLChars(Host) << "','"
+             << escapeSQLChars(AddedBy) << "',"
+             << AddedOn << ","
+             << Expires << ","
+             << LastUpdated << ",'"
+             << escapeSQLChars(Reason) << "')"
+             << ends;
 
-stringstream theQuery;
-theQuery	<< Main
-		<< escapeSQLChars(Host) << "','"
-		<< escapeSQLChars(AddedBy) << "',"
-		<< AddedOn << ","
-		<< Expires << ","
-		<< LastUpdated << ",'"
-		<< escapeSQLChars(Reason) << "')"
-		<< ends;
+    elog << "Gline::Insert::sqlQuery> "
+         << theQuery.str().c_str()
+         << endl;
 
-elog	<< "Gline::Insert::sqlQuery> "
-	<< theQuery.str().c_str()
-	<< endl; 
-
-if( SQLDb->Exec( theQuery ) )
-//if( PGRES_COMMAND_OK == status ) 
-	{
-	return true;
-	}
-else
-	{
-	elog	<< "cservice::Gline::Insert> SQL Failure: "
-		<< SQLDb->ErrorMessage()
-		<< endl ;
-	return false;
-	}
-
+    if (SQLDb->Exec(theQuery))
+    //if( PGRES_COMMAND_OK == status )
+    {
+        return true;
+    } else {
+        elog << "cservice::Gline::Insert> SQL Failure: "
+             << SQLDb->ErrorMessage()
+             << endl;
+        return false;
+    }
 }
 
 bool csGline::Update()
 {
-if(atoi(Id.c_str()) == -1) //saveGlines was false when this gline was added
-	{
-	return true;
-	} 
-static const char *Main = "UPDATE Glines SET Id = '";
+    if (atoi(Id.c_str()) == -1) //saveGlines was false when this gline was added
+    {
+        return true;
+    }
+    static const char* Main = "UPDATE Glines SET Id = '";
 
-stringstream theQuery;
-theQuery	<< Main
-		<< Id
-		<< "', Host = '"
-		<< escapeSQLChars(Host)
-		<< "', AddedBy = '"
-		<< escapeSQLChars(AddedBy)
-		<< "', AddedOn = "
-		<< AddedOn
-		<< ",ExpiresAt = "
-		<< Expires
-		<< ",LastUpdated = "
-		<< LastUpdated
-		<<  ",Reason = '"
-		<< escapeSQLChars(Reason) << "'"
-		<< " WHERE Id = " << Id
-		<<  ends;
+    stringstream theQuery;
+    theQuery << Main
+             << Id
+             << "', Host = '"
+             << escapeSQLChars(Host)
+             << "', AddedBy = '"
+             << escapeSQLChars(AddedBy)
+             << "', AddedOn = "
+             << AddedOn
+             << ",ExpiresAt = "
+             << Expires
+             << ",LastUpdated = "
+             << LastUpdated
+             << ",Reason = '"
+             << escapeSQLChars(Reason) << "'"
+             << " WHERE Id = " << Id
+             << ends;
 
-elog	<< "cservice::Gline::Update> "
-	<< theQuery.str().c_str()
-	<< endl; 
+    elog << "cservice::Gline::Update> "
+         << theQuery.str().c_str()
+         << endl;
 
-if( SQLDb->Exec( theQuery ) )
-//if( PGRES_COMMAND_OK == status ) 
-	{
-	return true;
-	}
-else
-	{
-	elog	<< "cservice::Gline::Update> SQL Failure: "
-		<< SQLDb->ErrorMessage()
-		<< endl ;
-	return false;
-	}
+    if (SQLDb->Exec(theQuery))
+    //if( PGRES_COMMAND_OK == status )
+    {
+        return true;
+    } else {
+        elog << "cservice::Gline::Update> SQL Failure: "
+             << SQLDb->ErrorMessage()
+             << endl;
+        return false;
+    }
 }
 
 bool csGline::loadData(int GlineId)
 {
-static const char *Main = "SELECT Id,Host,AddedBy,AddedOn,ExpiresAt,LastUpdated,Reason FROM glines WHERE Id = ";
+    static const char* Main = "SELECT Id,Host,AddedBy,AddedOn,ExpiresAt,LastUpdated,Reason FROM glines WHERE Id = ";
 
-stringstream theQuery;
-theQuery	<< Main
-		<< GlineId
-		<< ends;
+    stringstream theQuery;
+    theQuery << Main
+             << GlineId
+             << ends;
 
-elog	<< "cservice::glineload> "
-	<< theQuery.str().c_str()
-	<< endl; 
+    elog << "cservice::glineload> "
+         << theQuery.str().c_str()
+         << endl;
 
-if( !SQLDb->Exec( theQuery, true ) )
-//if( PGRES_TUPLES_OK != status )
-	{
-	elog	<< "csGline::load> SQL Failure: "
-		<< SQLDb->ErrorMessage()
-		<< endl ;
+    if (!SQLDb->Exec(theQuery, true))
+    //if( PGRES_TUPLES_OK != status )
+    {
+        elog << "csGline::load> SQL Failure: "
+             << SQLDb->ErrorMessage()
+             << endl;
 
-	return false ;
-	}
+        return false;
+    }
 
-if(SQLDb->Tuples() < 6)
-    return false;
-Id = SQLDb->GetValue(0,0);
-Host = SQLDb->GetValue(0,1);
-AddedBy = SQLDb->GetValue(0,2) ;
-AddedOn = static_cast< time_t >( unsigned(
-	atoi( SQLDb->GetValue(0,3).c_str() ) )) ;
-Expires = static_cast< time_t >( unsigned(
-	atoi( SQLDb->GetValue(0,4).c_str() ) )) ;
-LastUpdated = static_cast< time_t >( unsigned(
-	atoi( SQLDb->GetValue(0,5).c_str() ) )) ;
-Reason = SQLDb->GetValue(0,6);
+    if (SQLDb->Tuples() < 6)
+        return false;
+    Id = SQLDb->GetValue(0, 0);
+    Host = SQLDb->GetValue(0, 1);
+    AddedBy = SQLDb->GetValue(0, 2);
+    AddedOn = static_cast<time_t>(unsigned(
+        atoi(SQLDb->GetValue(0, 3).c_str())));
+    Expires = static_cast<time_t>(unsigned(
+        atoi(SQLDb->GetValue(0, 4).c_str())));
+    LastUpdated = static_cast<time_t>(unsigned(
+        atoi(SQLDb->GetValue(0, 5).c_str())));
+    Reason = SQLDb->GetValue(0, 6);
 
-return true;
+    return true;
 }
 
-bool csGline::loadData( const string & HostName)
+bool csGline::loadData(const string& HostName)
 {
-static const char *Main = "SELECT Id,Host,AddedBy,AddedOn,ExpiresAt,LastUpdated,Reason FROM glines WHERE Host = '";
+    static const char* Main = "SELECT Id,Host,AddedBy,AddedOn,ExpiresAt,LastUpdated,Reason FROM glines WHERE Host = '";
 
-stringstream theQuery;
-theQuery	<< Main
-		<< escapeSQLChars(HostName.c_str())
-		<< "'" << ends;
+    stringstream theQuery;
+    theQuery << Main
+             << escapeSQLChars(HostName.c_str())
+             << "'" << ends;
 
-elog	<< "cservice::loadData> "
-	<< theQuery.str().c_str()
-	<< endl; 
+    elog << "cservice::loadData> "
+         << theQuery.str().c_str()
+         << endl;
 
-if( !SQLDb->Exec( theQuery, true ) )
-//if( PGRES_TUPLES_OK != status )
-	{
-	elog	<< "csGline::loadData> SQL Failure: "
-		<< SQLDb->ErrorMessage()
-		<< endl ;
+    if (!SQLDb->Exec(theQuery, true))
+    //if( PGRES_TUPLES_OK != status )
+    {
+        elog << "csGline::loadData> SQL Failure: "
+             << SQLDb->ErrorMessage()
+             << endl;
 
-	return false ;
-	}
+        return false;
+    }
 
-if(SQLDb->Tuples() == 0) //If no gline was found
-	return false;
-Id = SQLDb->GetValue(0,0);
-Host = SQLDb->GetValue(0,1);
-AddedBy = SQLDb->GetValue(0,2) ;
-AddedOn = static_cast< time_t >( atoi( SQLDb->GetValue(0,3).c_str() ) ) ;
-Expires = static_cast< time_t >( atoi( SQLDb->GetValue(0,4).c_str() ) ) ;
-LastUpdated = static_cast< time_t >( atoi( SQLDb->GetValue(0,5).c_str() ) ) ;
-Reason = SQLDb->GetValue(0,6);
+    if (SQLDb->Tuples() == 0) //If no gline was found
+        return false;
+    Id = SQLDb->GetValue(0, 0);
+    Host = SQLDb->GetValue(0, 1);
+    AddedBy = SQLDb->GetValue(0, 2);
+    AddedOn = static_cast<time_t>(atoi(SQLDb->GetValue(0, 3).c_str()));
+    Expires = static_cast<time_t>(atoi(SQLDb->GetValue(0, 4).c_str()));
+    LastUpdated = static_cast<time_t>(atoi(SQLDb->GetValue(0, 5).c_str()));
+    Reason = SQLDb->GetValue(0, 6);
 
-return true;
+    return true;
 }
 
 bool csGline::Delete()
 {
-if(atoi(Id.c_str()) == -1) //saveGlines was false when this gline was added
-	{
-	return true;
-	} 
+    if (atoi(Id.c_str()) == -1) //saveGlines was false when this gline was added
+    {
+        return true;
+    }
 
-static const char *Main = "DELETE FROM glines WHERE Id = ";
+    static const char* Main = "DELETE FROM glines WHERE Id = ";
 
-stringstream theQuery;
-theQuery	<< Main
-		<< Id
-		<< ends;
+    stringstream theQuery;
+    theQuery << Main
+             << Id
+             << ends;
 
-elog	<< "cservice::glineDelete> "
-	<< theQuery.str().c_str()
-	<< endl; 
+    elog << "cservice::glineDelete> "
+         << theQuery.str().c_str()
+         << endl;
 
-if( SQLDb->Exec( theQuery ) )
-//if( PGRES_COMMAND_OK == status ) 
-	{
-	return true;
-	}
-else
-	{
-	elog	<< "csGline::csDelete> SQL Failure: "
-		<< SQLDb->ErrorMessage()
-		<< endl ;
+    if (SQLDb->Exec(theQuery))
+    //if( PGRES_COMMAND_OK == status )
+    {
+        return true;
+    } else {
+        elog << "csGline::csDelete> SQL Failure: "
+             << SQLDb->ErrorMessage()
+             << endl;
 
-	return false ;
-	}
-return true;
+        return false;
+    }
+    return true;
 }
-
 
 } //Namespace Gnuworld

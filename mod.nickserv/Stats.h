@@ -25,11 +25,11 @@
 
 namespace gnuworld {
 
-using std::map ;
-using std::string ;
+using std::map;
+using std::string;
 
 class Stats {
-  public:
+public:
     /**
      * Implement Stats as a singleton
      * Only way to get a reference to the manager is through this method
@@ -40,8 +40,7 @@ class Stats {
      ** T Y P E D E F S **
      *********************/
 
-    typedef map< string, int > statsMapType;
-
+    typedef map<string, int> statsMapType;
 
     /*******************************
      ** S T A T S   C O N T R O L **
@@ -55,13 +54,17 @@ class Stats {
 
     /** Accessor for statsMap.begin() */
     inline const statsMapType::const_iterator getStatsMapBegin() const
-      { return statsMap.begin(); }
+    {
+        return statsMap.begin();
+    }
 
     /** Accessor for statsMap.end() */
     inline const statsMapType::const_iterator getStatsMapEnd() const
-      { return statsMap.end(); }
+    {
+        return statsMap.end();
+    }
 
-  protected:
+protected:
     /**
      * Disable the default constructor so that instances can only be gotten
      * through getInstance()

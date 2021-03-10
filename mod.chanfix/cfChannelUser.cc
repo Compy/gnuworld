@@ -25,24 +25,22 @@ namespace gnuworld {
 
 namespace chanfix {
 
-using std::string;
+    using std::string;
 
-cfChannelUser::cfChannelUser(const string& _name) :
-	name(_name) ,
-	points(0)
-{
-}
+    cfChannelUser::cfChannelUser(const string& _name)
+        : name(_name)
+        , points(0)
+    {
+    }
 
-cfChannelUser::~cfChannelUser()
-{
-}
+    cfChannelUser::~cfChannelUser()
+    {
+    }
 
-
-void cfChannelUser::addPoints(unsigned int _points)
-{
-	points += _points;
-}
-
+    void cfChannelUser::addPoints(unsigned int _points)
+    {
+        points += _points;
+    }
 
 } // namespace chanfix
 

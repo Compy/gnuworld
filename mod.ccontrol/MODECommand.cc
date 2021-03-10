@@ -20,68 +20,62 @@
  * $Id: MODECommand.cc,v 1.22 2006/09/26 17:35:59 kewlio Exp $
  */
 
-#include	<string>
-#include	<iomanip>
-#include	<cstdlib>
-#include	"ccontrol.h"
-#include	"CControlCommands.h"
-#include	"StringTokenizer.h"
-#include	"Network.h"
-#include	"Constants.h"
-#include	"ccBadChannel.h"
-#include	"gnuworld_config.h"
+#include "CControlCommands.h"
+#include "Constants.h"
+#include "Network.h"
+#include "StringTokenizer.h"
+#include "ccBadChannel.h"
+#include "ccontrol.h"
+#include "gnuworld_config.h"
+#include <cstdlib>
+#include <iomanip>
+#include <string>
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-using std::string ;
+using std::string;
 
-namespace uworld
-{
+namespace uworld {
 
-// LDd P AIAAA :mode #krushnet -o DawgSleep
-// mode channel modes
-bool MODECommand::Exec( iClient* theClient, const string& Message )
-{
-StringTokenizer st( Message ) ;
-if( st.size() < 3 )
-	{
-	Usage( theClient ) ;
-	return true ;
-	}
-
-if(st[1].size() > channel::MaxName)
-	{
-	bot->Notice(theClient,"Channel can't be more than %d characters",
-		channel::MaxName);
-	}
-
-Channel* theChan = Network->findChannel( st[ 1 ] ) ;
-if( NULL == theChan )
-	{
-	bot->Notice( theClient, "Unable to find channel '%s'\n",
-		st[ 1 ].c_str() ) ;
-	return true ;
-	}
-bot->MsgChanLog("MODE  %s\n",st.assemble(1).c_str());
-
-ccBadChannel* Chan = bot->isBadChannel(st[1]);
-if(Chan)
-        {
-        bot->Notice(theClient,"Sorry, but you can't change modes in "
-                             "this channel because: %s",
-                             Chan->getReason().c_str());
-        return false;
+    // LDd P AIAAA :mode #krushnet -o DawgSleep
+    // mode channel modes
+    bool MODECommand::Exec(iClient* theClient, const string& Message)
+    {
+        StringTokenizer st(Message);
+        if (st.size() < 3) {
+            Usage(theClient);
+            return true;
         }
 
-// This has been changed to use xServer::Mode(), which will from now
-// on perform the bulk of the heavy lifting with setting modes.
-// Note that this will have the negative effect of not telling
-// the requesting client of this command why something did not succeed.
-bot->Mode( theChan, st.assemble( 2 ), string(), true ) ;
-return true ;
+        if (st[1].size() > channel::MaxName) {
+            bot->Notice(theClient, "Channel can't be more than %d characters",
+                channel::MaxName);
+        }
 
-/*
+        Channel* theChan = Network->findChannel(st[1]);
+        if (NULL == theChan) {
+            bot->Notice(theClient, "Unable to find channel '%s'\n",
+                st[1].c_str());
+            return true;
+        }
+        bot->MsgChanLog("MODE  %s\n", st.assemble(1).c_str());
+
+        ccBadChannel* Chan = bot->isBadChannel(st[1]);
+        if (Chan) {
+            bot->Notice(theClient, "Sorry, but you can't change modes in "
+                                   "this channel because: %s",
+                Chan->getReason().c_str());
+            return false;
+        }
+
+        // This has been changed to use xServer::Mode(), which will from now
+        // on perform the bulk of the heavy lifting with setting modes.
+        // Note that this will have the negative effect of not telling
+        // the requesting client of this command why something did not succeed.
+        bot->Mode(theChan, st.assemble(2), string(), true);
+        return true;
+
+        /*
 
 // Define mode to be any mode, such as +abc-def
 // Define argument to to be any argument to a particular mode: -o nickArgument
@@ -373,14 +367,14 @@ while( modePos < st.size() )
 bot->ModeAsServer( theChan, modeString + ' ' + argString ) ;
 */
 
-// Update internal tables.
-// This is a cheat, but it makes things so much easier :)
-// TODO
-//theChan->OnModeChange( theClient->getCharYYXXX(), modeString, argString
-//) ;
+        // Update internal tables.
+        // This is a cheat, but it makes things so much easier :)
+        // TODO
+        //theChan->OnModeChange( theClient->getCharYYXXX(), modeString, argString
+        //) ;
 
-return true ;
-}
+        return true;
+    }
 
 }
 }

@@ -20,19 +20,20 @@
  * $Id: ScannerModule.cc,v 1.1 2002/08/08 21:31:45 dan_karrels Exp $
  */
 
-#include	"ConnectionHandler.h"
-#include	"ConnectionManager.h"
-#include	"ScannerModule.h"
+#include "ScannerModule.h"
+#include "ConnectionHandler.h"
+#include "ConnectionManager.h"
 
+namespace gnuworld {
 
-namespace gnuworld
+ScannerModule::ScannerModule(ConnectionManager* cm, scanner* theScanner)
+    : cm(cm)
+    , theScanner(theScanner)
 {
-
-ScannerModule::ScannerModule( ConnectionManager* cm, scanner* theScanner )
-	: cm( cm ), theScanner( theScanner )
-{}
+}
 
 ScannerModule::~ScannerModule()
-{}
+{
+}
 
 } // namespace gnuworld

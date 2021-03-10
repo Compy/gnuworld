@@ -22,56 +22,53 @@
 #include "Convert.h"
 #include "StringTokenizer.h"
 
-#include "levels.h"
 #include "dronescan.h"
 #include "dronescanCommands.h"
 #include "dronescanTests.h"
+#include "levels.h"
 #include "sqlUser.h"
 
 namespace gnuworld {
 
 namespace ds {
 
-void STATUSCommand::Exec( const iClient *theClient, const string& Message, const sqlUser* theUser )
-{
-	if(theUser->getAccess() < level::status) return ;
+    void STATUSCommand::Exec(const iClient* theClient, const string& Message, const sqlUser* theUser)
+    {
+        if (theUser->getAccess() < level::status)
+            return;
 
-	StringTokenizer st(Message);
+        StringTokenizer st(Message);
 
-	/* Usage:
+        /* Usage:
 	 *  STATUS
 	 */
 
-	if(st.size() != 1) {
-		Usage(theClient);
-		return ;
-	}
+        if (st.size() != 1) {
+            Usage(theClient);
+            return;
+        }
 
-	time_t uptime = ::time(0) - bot->getUplink()->getStartTime();
-	bot->Reply(theClient, "Uptime: %u (%s)",
-		uptime,
-		Convert::ConvertSecondsToString(uptime).c_str()
-		);
+        time_t uptime = ::time(0) - bot->getUplink()->getStartTime();
+        bot->Reply(theClient, "Uptime: %u (%s)",
+            uptime,
+            Convert::ConvertSecondsToString(uptime).c_str());
 
-	bot->Reply(theClient, "Tests:");
-	dronescan::testMapType::const_iterator itr = bot->testMap.begin();
-	for( ; itr != bot->testMap.end() ; ++itr) {
-		bot->Reply(theClient, " %-10s: %s",
-			itr->first.c_str(),
-			itr->second->getStatus().c_str()
-			);
-	}
+        bot->Reply(theClient, "Tests:");
+        dronescan::testMapType::const_iterator itr = bot->testMap.begin();
+        for (; itr != bot->testMap.end(); ++itr) {
+            bot->Reply(theClient, " %-10s: %s",
+                itr->first.c_str(),
+                itr->second->getStatus().c_str());
+        }
 
-	bot->Reply(theClient, "GLINEQUEUE : %d", bot->GetGlineQueueSize());
+        bot->Reply(theClient, "GLINEQUEUE : %d", bot->GetGlineQueueSize());
 
+        bot->Reply(theClient, "Current State: %s",
+            bot->getCurrentState() == BURST ? "BURSTING" : "RUNNING");
 
-	bot->Reply(theClient, "Current State: %s",
-	    bot->getCurrentState()== BURST ? "BURSTING" : "RUNNING");
-	    
-	return ;
+        return;
 
-
-} // STATUSCommand::Exec(iClient*, const string&)
+    } // STATUSCommand::Exec(iClient*, const string&)
 
 } // namespace ds
 

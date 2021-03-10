@@ -24,41 +24,39 @@
 #include "Network.h"
 #include "StringTokenizer.h"
 
-#include "levels.h"
 #include "dronescan.h"
 #include "dronescanCommands.h"
+#include "levels.h"
 #include "sqlUser.h"
 
-#include	<string>
-#include	<iostream>
+#include <iostream>
+#include <string>
 
-#include	"iClient.h"
+#include "iClient.h"
 
 /*#include	"Command.h"
 #include	"Channel.h"*/
-#include	"ELog.h"
+#include "ELog.h"
 
-namespace gnuworld
-{
+namespace gnuworld {
 
 namespace ds {
 
-void RELOADCommand::Exec( const iClient *theClient, const string& Message, const sqlUser* theUser )
-{
-//elog	<< "RELOAD> theClient: "
-//	<< *theClient
-//	<< ", args: "
-//	<< args
-//	<< std::endl ;
-elog	<< "DS.RELOADCommand> Reloading..."
- 	<< std::endl ;
+    void RELOADCommand::Exec(const iClient* theClient, const string& Message, const sqlUser* theUser)
+    {
+        //elog	<< "RELOAD> theClient: "
+        //	<< *theClient
+        //	<< ", args: "
+        //	<< args
+        //	<< std::endl ;
+        elog << "DS.RELOADCommand> Reloading..."
+             << std::endl;
 
-bot->Reply( theClient, "Reloading..." ) ;
-bot->getUplink()->UnloadClient( bot, "I need more to do" ) ;
-bot->getUplink()->LoadClient( "libdronescan.la",
-	bot->getConfigFileName() ) ;
-
-}
+        bot->Reply(theClient, "Reloading...");
+        bot->getUplink()->UnloadClient(bot, "I need more to do");
+        bot->getUplink()->LoadClient("libdronescan.la",
+            bot->getConfigFileName());
+    }
 
 } // namespace ds
 

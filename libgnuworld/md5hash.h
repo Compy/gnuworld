@@ -62,51 +62,51 @@
 #define MD5_H "$Id: md5hash.h,v 1.4 2005/11/16 21:40:37 kewlio Exp $"
 
 #include <iostream>
- 
+
 #define MD5_DIGEST_LENGTH 16
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-class md5Digest;     // Forward declaration.
+class md5Digest; // Forward declaration.
 
 class md5 {
 public:
-   md5(  void );                       // Automatically calls md5::init().
-   virtual ~md5( void );               // Automatically calls md5::clear().
-   void update( const unsigned char *input, size_t length );  // Process data.
-   void report( md5Digest &digest );   // Used to generate the digest.
-   void init(  void );                 // Used for reinitialization.
-   void clear( void );                 // Used to wipe clean interal data.
+    md5(void); // Automatically calls md5::init().
+    virtual ~md5(void); // Automatically calls md5::clear().
+    void update(const unsigned char* input, size_t length); // Process data.
+    void report(md5Digest& digest); // Used to generate the digest.
+    void init(void); // Used for reinitialization.
+    void clear(void); // Used to wipe clean interal data.
 protected:
-   uint32_t  m_state[4];              // State (ABCD)
-   uint32_t  m_count[2];              // Number of bits, modulo 2^64 (lsb first).
-   unsigned char  m_buffer[64];       // Input buffer.
-   void transform( const unsigned char block[64] );
-   void encode( unsigned char  *output, const uint32_t  *input, int32_t len );
-   void encode( md5Digest &digest );
-   void decode( uint32_t  *output, const unsigned char  *input, int32_t len );
+    uint32_t m_state[4]; // State (ABCD)
+    uint32_t m_count[2]; // Number of bits, modulo 2^64 (lsb first).
+    unsigned char m_buffer[64]; // Input buffer.
+    void transform(const unsigned char block[64]);
+    void encode(unsigned char* output, const uint32_t* input, int32_t len);
+    void encode(md5Digest& digest);
+    void decode(uint32_t* output, const unsigned char* input, int32_t len);
 };
 
 class md5Digest {
-   friend class md5 ;
+    friend class md5;
+
 public:
-   md5Digest(  void );              // Automatically calls md5Digest::clear().
-   ~md5Digest( void );              // Automatically calls md5Digest::clear().
-   unsigned char &operator[]( size_t ii );        // lvalue.
-   unsigned char  operator[]( size_t ii ) const;  // rvalue.
-   void   clear( void );
+    md5Digest(void); // Automatically calls md5Digest::clear().
+    ~md5Digest(void); // Automatically calls md5Digest::clear().
+    unsigned char& operator[](size_t ii); // lvalue.
+    unsigned char operator[](size_t ii) const; // rvalue.
+    void clear(void);
 
 private:
-   unsigned char m_data[ MD5_DIGEST_LENGTH ];
+    unsigned char m_data[MD5_DIGEST_LENGTH];
 
-   friend int32_t      operator==( const md5Digest &lhs, const md5Digest &rhs );
-   friend int32_t      operator!=( const md5Digest &lhs, const md5Digest &rhs );
-   friend std::istream& operator>>( std::istream& stream,
-				md5Digest& digest );
-   friend std::ostream& operator<<( std::ostream& stream,
-				const md5Digest& digest );
-//   friend void     md5::encode( md5Digest &digest );
+    friend int32_t operator==(const md5Digest& lhs, const md5Digest& rhs);
+    friend int32_t operator!=(const md5Digest& lhs, const md5Digest& rhs);
+    friend std::istream& operator>>(std::istream& stream,
+        md5Digest& digest);
+    friend std::ostream& operator<<(std::ostream& stream,
+        const md5Digest& digest);
+    //   friend void     md5::encode( md5Digest &digest );
 };
 
 } // namespace gnuworld

@@ -19,63 +19,58 @@
  * $Id: ccontrol_generic.cc,v 1.5 2008/01/03 04:26:22 kewlio Exp $
  */
 
-#include <time.h>
+#include "ccontrol_generic.h"
 #include <stdio.h>
 #include <string.h>
-#include "ccontrol_generic.h"
+#include <time.h>
 
 char ago[250];
 
-char *Duration(long ts)
+char* Duration(long ts)
 {
-	/* express duration in human readable format */
-	long duration;
-	int days, hours, mins = 0;
-	char tmp[16];
+    /* express duration in human readable format */
+    long duration;
+    int days, hours, mins = 0;
+    char tmp[16];
 
-	ago[0] = '\0';
+    ago[0] = '\0';
 
-	duration = ts;
+    duration = ts;
 
-	days = (duration / 86400);
-	duration %= 86400;
-	hours = (duration / 3600);
-	duration %= 3600;
-	mins = (duration / 60);
-	duration %= 60;
+    days = (duration / 86400);
+    duration %= 86400;
+    hours = (duration / 3600);
+    duration %= 3600;
+    mins = (duration / 60);
+    duration %= 60;
 
-	if (days > 0)
-	{
-		sprintf(tmp, "%dd", days);
-		strcat(ago, tmp);
-	}
-	if (hours > 0)
-	{
-		sprintf(tmp, "%dh", hours);
-		strcat(ago, tmp);
-	}
-	if (mins > 0)
-	{
-		sprintf(tmp, "%dm", mins);
-		strcat(ago, tmp);
-	}
-	/* only show seconds if we have any (or no other units */
-	if ((duration > 0) || (strlen(ago) == 0))
-	{
-		sprintf(tmp,"%ds", (int) duration);
-		strcat(ago,tmp);
-	}
+    if (days > 0) {
+        sprintf(tmp, "%dd", days);
+        strcat(ago, tmp);
+    }
+    if (hours > 0) {
+        sprintf(tmp, "%dh", hours);
+        strcat(ago, tmp);
+    }
+    if (mins > 0) {
+        sprintf(tmp, "%dm", mins);
+        strcat(ago, tmp);
+    }
+    /* only show seconds if we have any (or no other units */
+    if ((duration > 0) || (strlen(ago) == 0)) {
+        sprintf(tmp, "%ds", (int)duration);
+        strcat(ago, tmp);
+    }
 
-	return ago;
+    return ago;
 }
 
-char *Ago(long ts)
+char* Ago(long ts)
 {
-        /* express a a timestamp in human readable format */
-        long duration;
+    /* express a a timestamp in human readable format */
+    long duration;
 
-	duration = (time(NULL) - ts);
+    duration = (time(NULL) - ts);
 
-        return (Duration(duration));
+    return (Duration(duration));
 }
-

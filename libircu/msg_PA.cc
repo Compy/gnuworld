@@ -20,21 +20,20 @@
  * $Id: msg_PA.cc,v 1.4 2005/03/25 03:07:29 dan_karrels Exp $
  */
 
-#include	"server.h"
-#include	"xparameters.h"
-#include	"ServerCommandHandler.h"
+#include "ServerCommandHandler.h"
+#include "server.h"
+#include "xparameters.h"
 
-namespace gnuworld
-{
+namespace gnuworld {
 
 CREATE_HANDLER(msg_PA)
 
-bool msg_PA::Execute( const xParameters& )
+bool msg_PA::Execute(const xParameters&)
 {
-theServer->setBursting( true ) ;
-theServer->setUseHoldBuffer( true ) ;
+    theServer->setBursting(true);
+    theServer->setUseHoldBuffer(true);
 
-return true ;
+    return true;
 }
 
 } // namespace gnuworld

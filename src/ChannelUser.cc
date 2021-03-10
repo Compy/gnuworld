@@ -19,103 +19,98 @@
  *
  * $Id: ChannelUser.cc,v 1.10 2009/07/26 18:30:37 mrbean_ Exp $
  */
-#include	<string>
-#include	<vector>
-#include	<cassert>
-#include	"iClient.h"
-#include	"ChannelUser.h"
+#include "ChannelUser.h"
+#include "iClient.h"
+#include <cassert>
+#include <string>
+#include <vector>
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-using std::string ;
+using std::string;
 
-const ChannelUser::modeType ChannelUser::MODE_O = 0x01 ;
-const ChannelUser::modeType ChannelUser::MODE_V = 0x02 ;
+const ChannelUser::modeType ChannelUser::MODE_O = 0x01;
+const ChannelUser::modeType ChannelUser::MODE_V = 0x02;
 //const ChannelUser::modeType ChannelUser::ZOMBIE = 0x04 ;
 
-ChannelUser::ChannelUser( iClient* _theClient )
- : theClient( _theClient ),
-   modes( 0 )
+ChannelUser::ChannelUser(iClient* _theClient)
+    : theClient(_theClient)
+    , modes(0)
 {
-assert( theClient != 0 ) ;
+    assert(theClient != 0);
 }
 
 ChannelUser::~ChannelUser()
-{}
+{
+}
 
 const string& ChannelUser::getNickName() const
 {
-return theClient->getNickName() ;
+    return theClient->getNickName();
 }
 
 const string& ChannelUser::getUserName() const
 {
-return theClient->getUserName() ;
+    return theClient->getUserName();
 }
 
 const string& ChannelUser::getHostName() const
 {
-return theClient->getInsecureHost() ;
+    return theClient->getInsecureHost();
 }
 
 const irc_in_addr& ChannelUser::getIP() const
 {
-return theClient->getIP() ;
+    return theClient->getIP();
 }
 
 const string ChannelUser::getCharYYXXX() const
 {
-return theClient->getCharYYXXX() ;
+    return theClient->getCharYYXXX();
 }
 
 unsigned int ChannelUser::getIntYY() const
 {
-return theClient->getIntYY() ;
+    return theClient->getIntYY();
 }
 
 unsigned int ChannelUser::getIntXXX() const
 {
-return theClient->getIntXXX() ;
+    return theClient->getIntXXX();
 }
 
 unsigned int ChannelUser::getIntYYXXX() const
 {
-return theClient->getIntYYXXX() ;
+    return theClient->getIntYYXXX();
 }
 
 bool ChannelUser::isOper() const
 {
-return theClient->isOper() ;
+    return theClient->isOper();
 }
 
 string ChannelUser::getModeString() const
 {
-std::vector< string > modes ;	
+    std::vector<string> modes;
 
-if( isOper() )
-	{
-	modes.push_back( "oper" ) ;
-	}
-if( isModeV() )
-	{
-	modes.push_back( "voice" ) ;
-	}
-if( isModeO() )
-	{
-	modes.push_back( "op" ) ;
-	}
+    if (isOper()) {
+        modes.push_back("oper");
+    }
+    if (isModeV()) {
+        modes.push_back("voice");
+    }
+    if (isModeO()) {
+        modes.push_back("op");
+    }
 
-string retMe ;
-for( std::vector< string >::size_type i = 0 ; i < modes.size() ; ++i )
-	{
-	retMe += modes[ i ] ;
-	if( (i + 1) < modes.size() )
-		{
-		retMe += "," ;
-		}
-	}
-return retMe ;
+    string retMe;
+    for (std::vector<string>::size_type i = 0; i < modes.size(); ++i) {
+        retMe += modes[i];
+        if ((i + 1) < modes.size()) {
+            retMe += ",";
+        }
+    }
+    return retMe;
 }
 
 } //  namespace gnuworld

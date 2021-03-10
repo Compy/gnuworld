@@ -21,38 +21,37 @@
  *
  * $Id: sqlPendingChannel.cc,v 1.10 2007/08/28 16:10:12 dan_karrels Exp $
  */
- 
-#include	<sstream>
-#include	<string> 
-#include	<iostream>
 
-#include	<cstring> 
-#include	<ctime>
+#include <iostream>
+#include <sstream>
+#include <string>
 
-#include	"ELog.h"
-#include	"misc.h"
-#include	"sqlLevel.h"
-#include	"sqlUser.h"
-#include	"sqlChannel.h"
-#include	"constants.h"
-#include	"cservice_config.h"
-#include	"sqlPendingChannel.h"
-#include	"sqlPendingTraffic.h"
- 
-namespace gnuworld
-{
-using std::string ; 
-using std::endl ; 
-using std::ends ;
-using std::stringstream ;
+#include <cstring>
+#include <ctime>
+
+#include "ELog.h"
+#include "constants.h"
+#include "cservice_config.h"
+#include "misc.h"
+#include "sqlChannel.h"
+#include "sqlLevel.h"
+#include "sqlPendingChannel.h"
+#include "sqlPendingTraffic.h"
+#include "sqlUser.h"
+
+namespace gnuworld {
+using std::endl;
+using std::ends;
+using std::string;
+using std::stringstream;
 
 sqlPendingChannel::sqlPendingChannel(dbHandle* _SQLDb)
-:channel_id(0), 
-join_count(0),
-unique_join_count(0),
-initialised(false),
-SQLDb(_SQLDb)
-{ 
+    : channel_id(0)
+    , join_count(0)
+    , unique_join_count(0)
+    , initialised(false)
+    , SQLDb(_SQLDb)
+{
 }
 
 /*
@@ -62,89 +61,85 @@ SQLDb(_SQLDb)
 
 sqlPendingChannel::~sqlPendingChannel()
 {
-	for(trafficListType::iterator ptr = trafficList.begin();
-		ptr !=  trafficList.end(); ++ptr)
-		{ 
-			sqlPendingTraffic* toDie = ptr->second;
-//			elog << "Autocleanup of Traffic record for #" << toDie->ip_number << endl;
-			delete(toDie);
-		}
+    for (trafficListType::iterator ptr = trafficList.begin();
+         ptr != trafficList.end(); ++ptr) {
+        sqlPendingTraffic* toDie = ptr->second;
+        //			elog << "Autocleanup of Traffic record for #" << toDie->ip_number << endl;
+        delete (toDie);
+    }
 
-	for(trafficListType::iterator ptr = uniqueSupporterList.begin();
-		ptr !=  uniqueSupporterList.end(); ++ptr)
-		{
-			sqlPendingTraffic* toDie = ptr->second;
-//			elog << "Autocleanup of Traffic record for #" << toDie->ip_number << endl;
-			delete(toDie);
-		}
-}	
+    for (trafficListType::iterator ptr = uniqueSupporterList.begin();
+         ptr != uniqueSupporterList.end(); ++ptr) {
+        sqlPendingTraffic* toDie = ptr->second;
+        //			elog << "Autocleanup of Traffic record for #" << toDie->ip_number << endl;
+        delete (toDie);
+    }
+}
 
 void sqlPendingChannel::loadTrafficCache()
 {
-	/*
+    /*
 	 *  Load all associated Traffic records for this channel.
-	 */ 
-stringstream theQuery;
-theQuery 	<< "SELECT ip_number, join_count FROM pending_traffic"
-			<< " WHERE channel_id = " << channel_id
-			<< ends;
+	 */
+    stringstream theQuery;
+    theQuery << "SELECT ip_number, join_count FROM pending_traffic"
+             << " WHERE channel_id = " << channel_id
+             << ends;
 
 #ifdef LOG_SQL
-	elog	<< "sqlPendingChannel::loadTrafficCache> "
-		<< theQuery.str().c_str()
-		<< endl; 
+    elog << "sqlPendingChannel::loadTrafficCache> "
+         << theQuery.str().c_str()
+         << endl;
 #endif
 
-if( SQLDb->Exec(theQuery, true ) )
-//if( PGRES_TUPLES_OK == status )
-	{
-	for (unsigned int i = 0 ; i < SQLDb->Tuples(); i++)
-		{ 
-			string theIp = SQLDb->GetValue(i, 0);
-//			elog << "IP: " << theIp << endl;
+    if (SQLDb->Exec(theQuery, true))
+    //if( PGRES_TUPLES_OK == status )
+    {
+        for (unsigned int i = 0; i < SQLDb->Tuples(); i++) {
+            string theIp = SQLDb->GetValue(i, 0);
+            //			elog << "IP: " << theIp << endl;
 
-			sqlPendingTraffic* trafRecord = new sqlPendingTraffic(SQLDb);
-			trafRecord->ip_number = theIp;
-			trafRecord->join_count = atoi(SQLDb->GetValue(i, 1));
-			trafRecord->channel_id = channel_id; 
+            sqlPendingTraffic* trafRecord = new sqlPendingTraffic(SQLDb);
+            trafRecord->ip_number = theIp;
+            trafRecord->join_count = atoi(SQLDb->GetValue(i, 1));
+            trafRecord->channel_id = channel_id;
 
-			trafficList.insert(trafficListType::value_type(theIp, trafRecord));
-		}
-	}
+            trafficList.insert(trafficListType::value_type(theIp, trafRecord));
+        }
+    }
 }
 
 void sqlPendingChannel::loadSupportersTraffic()
 {
-	stringstream theQuery;
-	theQuery 	<< "SELECT user_id,join_count FROM supporters"
-				<< " WHERE channel_id = " << channel_id
-				<< ends;
+    stringstream theQuery;
+    theQuery << "SELECT user_id,join_count FROM supporters"
+             << " WHERE channel_id = " << channel_id
+             << ends;
 
-	#ifdef LOG_SQL
-		elog	<< "sqlPendingChannel::loadUniqueTrafficCache> "
-			<< theQuery.str().c_str()
-			<< endl;
-	#endif
+#ifdef LOG_SQL
+    elog << "sqlPendingChannel::loadUniqueTrafficCache> "
+         << theQuery.str().c_str()
+         << endl;
+#endif
 
-	if( SQLDb->Exec(theQuery, true ) )
-	//if( PGRES_TUPLES_OK == status )
-	{
-		for (unsigned int i = 0 ; i < SQLDb->Tuples(); i++)
-		{
-			string userId = SQLDb->GetValue(i, 0);
-			sqlPendingTraffic* trafRecord = new sqlPendingTraffic(SQLDb);
-			trafRecord->ip_number = userId;
-			trafRecord->join_count = atoi(SQLDb->GetValue(i, 1));
-			trafRecord->channel_id = channel_id;
+    if (SQLDb->Exec(theQuery, true))
+    //if( PGRES_TUPLES_OK == status )
+    {
+        for (unsigned int i = 0; i < SQLDb->Tuples(); i++) {
+            string userId = SQLDb->GetValue(i, 0);
+            sqlPendingTraffic* trafRecord = new sqlPendingTraffic(SQLDb);
+            trafRecord->ip_number = userId;
+            trafRecord->join_count = atoi(SQLDb->GetValue(i, 1));
+            trafRecord->channel_id = channel_id;
 
-			uniqueSupporterList.insert(trafficListType::value_type(userId, trafRecord));
-		}
-	}
+            uniqueSupporterList.insert(trafficListType::value_type(userId, trafRecord));
+        }
+    }
 }
 
 bool sqlPendingChannel::commit()
 {
-/*
+    /*
  * This is a 3 step commit.
  * 1. Update pending record values with new join_count
  * and unique_join_count.
@@ -152,83 +147,82 @@ bool sqlPendingChannel::commit()
  * 3. Update Traffic table with new traffic counts.
  */
 
-//elog << "Commiting Pending Channel Details: " << endl
-//	<< "Channel ID: " << channel_id << endl
-//	<< "Total Join Count: " << join_count
-//	<< endl; 
+    //elog << "Commiting Pending Channel Details: " << endl
+    //	<< "Channel ID: " << channel_id << endl
+    //	<< "Total Join Count: " << join_count
+    //	<< endl;
 
-/*
+    /*
  *  Set the number of unique joins to be the number
  *  of elements in the IP traffic list.
  */
 
-unique_join_count = trafficList.size();
- 
-stringstream queryString; 
-queryString << "UPDATE pending SET "
-			<< "join_count = " << join_count << ", "
-			<< "unique_join_count = " << unique_join_count << ", "
-			<< "first_init = '" << ((initialised == true) ? 'Y' : 'N') << "'"
-			<< " WHERE channel_id = " 
-			<< channel_id
-			<< ends;
+    unique_join_count = trafficList.size();
+
+    stringstream queryString;
+    queryString << "UPDATE pending SET "
+                << "join_count = " << join_count << ", "
+                << "unique_join_count = " << unique_join_count << ", "
+                << "first_init = '" << ((initialised == true) ? 'Y' : 'N') << "'"
+                << " WHERE channel_id = "
+                << channel_id
+                << ends;
 
 #ifdef LOG_SQL
-	elog	<< "sqlPendingChannel::commit> "
-			<< queryString.str().c_str()
-			<< endl;
+    elog << "sqlPendingChannel::commit> "
+         << queryString.str().c_str()
+         << endl;
 #endif
 
-if( !SQLDb->Exec(queryString ) )
-//if( PGRES_COMMAND_OK != status )
-	{
+    if (!SQLDb->Exec(queryString))
+    //if( PGRES_COMMAND_OK != status )
+    {
 
-	elog	<< "sqlPendingChannel::commit> Something went wrong: "
-		<< SQLDb->ErrorMessage()
-		<< endl;
+        elog << "sqlPendingChannel::commit> Something went wrong: "
+             << SQLDb->ErrorMessage()
+             << endl;
 
-	return false ;
- 	} 
+        return false;
+    }
 
-	/*
+    /*
 	 *  Next, iterate over the supporters and commit those details.
 	 */
 
-	//for(supporterListType::iterator ptr = supporterList.begin();
-	//	ptr !=  supporterList.end(); ++ptr)
-	//	{
-	//	}
- 
-	return true;
-}
+    //for(supporterListType::iterator ptr = supporterList.begin();
+    //	ptr !=  supporterList.end(); ++ptr)
+    //	{
+    //	}
 
+    return true;
+}
 
 bool sqlPendingChannel::commitSupporter(unsigned int sup_id, unsigned int count)
 {
-	stringstream queryString; 
-	queryString << "UPDATE supporters SET "
-				<< "join_count = " 
-				<< count 
-				<< " WHERE channel_id = "
-				<< channel_id
-				<< " AND user_id = "
-				<< sup_id
-				<< ends;
-	
-	#ifdef LOG_SQL
-		elog	<< "sqlPendingChannel::commit> "
-				<< queryString.str().c_str()
-				<< endl;
-	#endif
-	
-	if( !SQLDb->Exec(queryString ) )
-//	if( PGRES_COMMAND_OK != status )
-		{
-			elog << "sqlPendingChannel::commit> Error updating supporter "
-				 << "record for " << sup_id << endl;
-		}
+    stringstream queryString;
+    queryString << "UPDATE supporters SET "
+                << "join_count = "
+                << count
+                << " WHERE channel_id = "
+                << channel_id
+                << " AND user_id = "
+                << sup_id
+                << ends;
 
-	return true;
+#ifdef LOG_SQL
+    elog << "sqlPendingChannel::commit> "
+         << queryString.str().c_str()
+         << endl;
+#endif
+
+    if (!SQLDb->Exec(queryString))
+    //	if( PGRES_COMMAND_OK != status )
+    {
+        elog << "sqlPendingChannel::commit> Error updating supporter "
+             << "record for " << sup_id << endl;
+    }
+
+    return true;
 }
 
 }

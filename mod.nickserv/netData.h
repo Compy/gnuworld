@@ -24,31 +24,27 @@
 
 #include "logTarget.h"
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-namespace ns
-{
+namespace ns {
 
-class netData
-{
-  public:
+    class netData {
+    public:
+        /** Empty Constructor */
+        netData();
 
-    /** Empty Constructor */
-   netData();
+        /** Empty Destructor */
+        ~netData();
 
-    /** Empty Destructor */
-    ~netData();
+        /** Pointer to sqlUser if authed */
+        sqlUser* authedUser;
 
-    /** Pointer to sqlUser if authed */
-    sqlUser* authedUser;
+        /** Has this user been warned? */
+        bool warned;
 
-    /** Has this user been warned? */
-    bool warned;
-
-    /** This users logging status */
-   logging::events::eventType logMask;
-}; // class netData
+        /** This users logging status */
+        logging::events::eventType logMask;
+    }; // class netData
 
 } // namespace ns
 

@@ -26,69 +26,62 @@
  * $Id: SERVNOTICECommand.cc,v 1.5 2003/06/28 01:21:20 dan_karrels Exp $
  */
 
-#include	<string>
-#include	<map>
+#include <map>
+#include <string>
 
-#include	"StringTokenizer.h"
-#include	"ELog.h"
-#include	"cservice.h"
-#include	"Network.h"
-#include	"levels.h"
-#include	"responses.h"
+#include "ELog.h"
+#include "Network.h"
+#include "StringTokenizer.h"
+#include "cservice.h"
+#include "levels.h"
+#include "responses.h"
 
+namespace gnuworld {
+using std::map;
 
-namespace gnuworld
+bool SERVNOTICECommand::Exec(iClient* theClient, const string& Message)
 {
-using std::map ;
+    bot->incStat("COMMANDS.SERVNOTICE");
 
-bool SERVNOTICECommand::Exec( iClient* theClient, const string& Message )
-{
-bot->incStat("COMMANDS.SERVNOTICE");
+    StringTokenizer st(Message);
+    if (st.size() < 3) {
+        Usage(theClient);
+        return true;
+    }
 
-StringTokenizer st( Message ) ;
-if( st.size() < 3 )
-	{
-	Usage(theClient);
-	return true;
-	}
-
-/*
+    /*
  *  Fetch the sqlUser record attached to this client. If there isn't one,
  *  they aren't logged in - tell them they should be.
  */
 
-sqlUser* theUser = bot->isAuthed(theClient, true);
-if (!theUser)
-	{
-	return false;
-	}
+    sqlUser* theUser = bot->isAuthed(theClient, true);
+    if (!theUser) {
+        return false;
+    }
 
-/*
+    /*
  *  Check the user has sufficient admin access to do this.
  */
 
-int admLevel = bot->getAdminAccessLevel(theUser);
-if (admLevel < level::servnotice)
-	{
-	bot->Notice(theClient,
-		bot->getResponse(theUser, language::insuf_access).c_str());
-	return false;
-	}
+    int admLevel = bot->getAdminAccessLevel(theUser);
+    if (admLevel < level::servnotice) {
+        bot->Notice(theClient,
+            bot->getResponse(theUser, language::insuf_access).c_str());
+        return false;
+    }
 
-Channel* tmpChan = Network->findChannel(st[1]);
-if (!tmpChan)
-	{
-	bot->Notice(theClient,
-		bot->getResponse(theUser, language::chan_is_empty).c_str(),
-		st[1].c_str());
-	return false;
-	}
+    Channel* tmpChan = Network->findChannel(st[1]);
+    if (!tmpChan) {
+        bot->Notice(theClient,
+            bot->getResponse(theUser, language::chan_is_empty).c_str(),
+            st[1].c_str());
+        return false;
+    }
 
-string theMessage = st.assemble(2);
-this->server->serverNotice(tmpChan, "%s", theMessage.c_str());
+    string theMessage = st.assemble(2);
+    this->server->serverNotice(tmpChan, "%s", theMessage.c_str());
 
-return true ;
+    return true;
 }
 
 } // namespace gnuworld.
-

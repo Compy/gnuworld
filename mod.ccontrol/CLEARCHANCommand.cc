@@ -20,120 +20,105 @@
  * $Id: CLEARCHANCommand.cc,v 1.26 2006/09/26 17:35:58 kewlio Exp $
  */
 
-#include	<string>
-#include	<cstdlib>
-#include	<iomanip>
-#include	"Network.h"
-#include	"ccontrol.h"
-#include	"CControlCommands.h"
-#include	"StringTokenizer.h"
-#include	"Constants.h"
-#include	"ccBadChannel.h"
-#include	"gnuworld_config.h"
+#include "CControlCommands.h"
+#include "Constants.h"
+#include "Network.h"
+#include "StringTokenizer.h"
+#include "ccBadChannel.h"
+#include "ccontrol.h"
+#include "gnuworld_config.h"
+#include <cstdlib>
+#include <iomanip>
+#include <string>
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-using std::string ;
-using std::vector ;
 using gnuworld::iClient;
+using std::string;
+using std::vector;
 
-namespace uworld
-{
+namespace uworld {
 
-bool CLEARCHANCommand::Exec( iClient* theClient, const string& Message )
-{
-StringTokenizer st( Message ) ;
-bool Desynch = false;
+    bool CLEARCHANCommand::Exec(iClient* theClient, const string& Message)
+    {
+        StringTokenizer st(Message);
+        bool Desynch = false;
 
-if( st.size() < 2 )
-	{
-	Usage( theClient ) ;
-	return true ;
-	}
-
-if(st[1].size() > channel::MaxName)
-	{
-	bot->Notice(theClient,"Channel name can't be more than %d characters.",
-		channel::MaxName);
-	return false;
-	}
-
-Channel* theChan = Network->findChannel( st[ 1 ] ) ;
-if( NULL == theChan )
-	{
-	bot->Notice( theClient, "Unable to find channel %s",
-		st[ 1 ].c_str() ) ;
-	return true ;
-	}
-if(bot->isOperChan(theChan))
-	{
-	bot->Notice(theClient,"C'mon, you know you can't clear an oper channel.");
-	return false;
-	}
-
-string doModes; //This holds the modes the user asked to be removed
-string remModes = ""; //Holds the modes that we are removing
-string args = ""; //Holds the arguments for the remModes
-
-bot->MsgChanLog("CLEARCHAN %s\n",st.assemble(1).c_str());
-ccBadChannel* Chan = bot->isBadChannel(st[1]);
-if(Chan)
-        {
-        bot->Notice(theClient,"Sorry, you can't change modes in "
-                             "this channel because: %s",
-                             Chan->getReason().c_str());
-        return false;
+        if (st.size() < 2) {
+            Usage(theClient);
+            return true;
         }
 
-//Check if the user specified the modes, if not assume he ment all of the modes
-if(st.size() == 2)
-	doModes = "obklimrD";
-else if(!strcasecmp(string_upper(st[ 2 ]),"ALL"))
-	doModes = "obklimnsptrDCc";
-else if(!strcasecmp(string_upper(st [ 2]),"-d"))
-	Desynch = true;
-else	
-	doModes = st [ 2 ];
+        if (st[1].size() > channel::MaxName) {
+            bot->Notice(theClient, "Channel name can't be more than %d characters.",
+                channel::MaxName);
+            return false;
+        }
 
-if(Desynch)
-	{
-	vector<iClient*> KickVec;
-	bot->Join(theChan->getName(),"+i",0,true);
-	for( Channel::const_userIterator ptr = theChan->userList_begin();
-		ptr != theChan->userList_end() ; ++ptr )
-			{
-			
-			if ( !ptr->second->getClient()->getMode(iClient::MODE_SERVICES) ) 
-				{
-				KickVec.push_back(ptr->second->getClient());
-				}
-			else
-				{
-				/* 
+        Channel* theChan = Network->findChannel(st[1]);
+        if (NULL == theChan) {
+            bot->Notice(theClient, "Unable to find channel %s",
+                st[1].c_str());
+            return true;
+        }
+        if (bot->isOperChan(theChan)) {
+            bot->Notice(theClient, "C'mon, you know you can't clear an oper channel.");
+            return false;
+        }
+
+        string doModes; //This holds the modes the user asked to be removed
+        string remModes = ""; //Holds the modes that we are removing
+        string args = ""; //Holds the arguments for the remModes
+
+        bot->MsgChanLog("CLEARCHAN %s\n", st.assemble(1).c_str());
+        ccBadChannel* Chan = bot->isBadChannel(st[1]);
+        if (Chan) {
+            bot->Notice(theClient, "Sorry, you can't change modes in "
+                                   "this channel because: %s",
+                Chan->getReason().c_str());
+            return false;
+        }
+
+        //Check if the user specified the modes, if not assume he ment all of the modes
+        if (st.size() == 2)
+            doModes = "obklimrD";
+        else if (!strcasecmp(string_upper(st[2]), "ALL"))
+            doModes = "obklimnsptrDCc";
+        else if (!strcasecmp(string_upper(st[2]), "-d"))
+            Desynch = true;
+        else
+            doModes = st[2];
+
+        if (Desynch) {
+            vector<iClient*> KickVec;
+            bot->Join(theChan->getName(), "+i", 0, true);
+            for (Channel::const_userIterator ptr = theChan->userList_begin();
+                 ptr != theChan->userList_end(); ++ptr) {
+
+                if (!ptr->second->getClient()->getMode(iClient::MODE_SERVICES)) {
+                    KickVec.push_back(ptr->second->getClient());
+                } else {
+                    /* 
 				 its a +k user, need to make sure its not us
 				 */
-				if(strcmp(ptr->second->getClient()->getCharYYXXX().c_str(),
-					 bot->getCharYYXXX().c_str()))
-					{ 
-					bot->Message(ptr->second->getClient(),"OPERPART %s"
-						    ,theChan->getName().c_str());
-					}
-				}
-			}
-	if(KickVec.size() > 0)
-		{
-		string reason = "Desynch clearing";
-		bot->Kick(theChan,KickVec,reason);
-		}
-	bot->Part(theChan->getName());
-	return true;
-	}
+                    if (strcmp(ptr->second->getClient()->getCharYYXXX().c_str(),
+                            bot->getCharYYXXX().c_str())) {
+                        bot->Message(ptr->second->getClient(), "OPERPART %s", theChan->getName().c_str());
+                    }
+                }
+            }
+            if (KickVec.size() > 0) {
+                string reason = "Desynch clearing";
+                bot->Kick(theChan, KickVec, reason);
+            }
+            bot->Part(theChan->getName());
+            return true;
+        }
 
-bot->ClearMode( theChan, doModes, true ) ;
-return true ;
+        bot->ClearMode(theChan, doModes, true);
+        return true;
 
-/*	
+        /*	
 for( string::size_type modePos = 0 ; modePos < doModes.size() ; ++modePos )
 	{
 	switch( doModes[ modePos ] )
@@ -256,7 +241,7 @@ if(!remModes.empty())
 	bot->ModeAsServer(theChan,"-" + remModes + " " + args);
 return true;	
 */
-}
+    }
 
 }
 }

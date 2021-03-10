@@ -26,62 +26,59 @@
 #include "Network.h"
 #include "StringTokenizer.h"
 
-#include "levels.h"
 #include "dronescan.h"
 #include "dronescanCommands.h"
+#include "levels.h"
 #include "sqlUser.h"
 
 namespace gnuworld {
 
 namespace ds {
 
-void ACCESSCommand::Exec( const iClient *theClient, const string& Message, const sqlUser* theUser )
-{
-	if(theUser->getAccess() < level::access) return ;
+    void ACCESSCommand::Exec(const iClient* theClient, const string& Message, const sqlUser* theUser)
+    {
+        if (theUser->getAccess() < level::access)
+            return;
 
-	StringTokenizer st(Message);
+        StringTokenizer st(Message);
 
-	/* Usage:
+        /* Usage:
 	 *  ACCESS
 	 *  ACCESS <username>
 	 */
 
-	const sqlUser *targetUser = theUser;
+        const sqlUser* targetUser = theUser;
 
-	if(st.size() == 2) {
-		targetUser = bot->getSqlUser(st[1]);
-		if(!targetUser) {
-			bot->Reply(theClient, "No such user %s",
-				st[1].c_str()
-				);
-			return ;
-		}
-	}
+        if (st.size() == 2) {
+            targetUser = bot->getSqlUser(st[1]);
+            if (!targetUser) {
+                bot->Reply(theClient, "No such user %s",
+                    st[1].c_str());
+                return;
+            }
+        }
 
-	time_t lastseen = targetUser->getLastSeen();
-	char lastseen_r[21];
-	struct tm *lastseen_b = gmtime(&lastseen);
-	strftime(lastseen_r, 20, "%F %H:%M:%S", lastseen_b);
+        time_t lastseen = targetUser->getLastSeen();
+        char lastseen_r[21];
+        struct tm* lastseen_b = gmtime(&lastseen);
+        strftime(lastseen_r, 20, "%F %H:%M:%S", lastseen_b);
 
-	/* Give the client information about the targetUser */
-	bot->Reply(theClient, "Username : %-10s Access: %4u",
-		targetUser->getUserName().c_str(),
-		targetUser->getAccess()
-		);
-	bot->Reply(theClient, "Last Seen: %s",
-		lastseen_r
-		);
+        /* Give the client information about the targetUser */
+        bot->Reply(theClient, "Username : %-10s Access: %4u",
+            targetUser->getUserName().c_str(),
+            targetUser->getAccess());
+        bot->Reply(theClient, "Last Seen: %s",
+            lastseen_r);
 
-	lastseen = targetUser->getLastUpdated();
-	lastseen_b = gmtime(&lastseen);
-	strftime(lastseen_r, 20, "%F %H:%M:%S", lastseen_b);
-	bot->Reply(theClient, "Last Updated: %s (by %s)",
-		lastseen_r,
-		targetUser->getLastUpdatedBy().c_str()
-		);
+        lastseen = targetUser->getLastUpdated();
+        lastseen_b = gmtime(&lastseen);
+        strftime(lastseen_r, 20, "%F %H:%M:%S", lastseen_b);
+        bot->Reply(theClient, "Last Updated: %s (by %s)",
+            lastseen_r,
+            targetUser->getLastUpdatedBy().c_str());
 
-	return ;
-} // ACCESSCommand::Exec(iClient*, const string&)
+        return;
+    } // ACCESSCommand::Exec(iClient*, const string&)
 
 } // namespace ds
 

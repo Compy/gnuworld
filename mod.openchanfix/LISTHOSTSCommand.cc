@@ -23,87 +23,89 @@
  *
  * $Id: LISTHOSTSCommand.cc,v 1.4 2006/12/09 00:29:18 buzlip01 Exp $
  */
-#include "gnuworld_config.h"
-#include "chanfix.h"
-#include "responses.h"
 #include "StringTokenizer.h"
+#include "chanfix.h"
+#include "gnuworld_config.h"
+#include "responses.h"
 #include "sqlcfUser.h"
 
-namespace gnuworld
-{
-namespace cf
-{
+namespace gnuworld {
+namespace cf {
 
-void LISTHOSTSCommand::Exec(iClient* theClient, sqlcfUser* theUser, const std::string& Message)
-{	 
-StringTokenizer st(Message);
+    void LISTHOSTSCommand::Exec(iClient* theClient, sqlcfUser* theUser, const std::string& Message)
+    {
+        StringTokenizer st(Message);
 
-sqlcfUser* targetUser;
-if (st.size() == 2)
-  targetUser = bot->isAuthed(st[1]);
-else
-  targetUser = theUser;
+        sqlcfUser* targetUser;
+        if (st.size() == 2)
+            targetUser = bot->isAuthed(st[1]);
+        else
+            targetUser = theUser;
 
-if (!targetUser) {
-  bot->SendTo(theClient,
-	      bot->getResponse(theUser,
-			language::no_such_user,
-			std::string("No such user %s.")).c_str(),
-			st[1].c_str());
-  return;
-}
+        if (!targetUser) {
+            bot->SendTo(theClient,
+                bot->getResponse(theUser,
+                       language::no_such_user,
+                       std::string("No such user %s."))
+                    .c_str(),
+                st[1].c_str());
+            return;
+        }
 
-sqlcfUser::flagType requiredFlags = sqlcfUser::F_USERMANAGER | sqlcfUser::F_SERVERADMIN;
-if ((targetUser != theUser) && !theUser->getFlag(requiredFlags)) {
-  bot->SendTo(theClient,
-	      bot->getResponse(theUser,
-			language::requires_auth_and_flags,
-			std::string("This command requires authentication and one of these flags: \"%s\".")).c_str(),
-			bot->getFlagsString(requiredFlags).c_str());
-  return;
-}
+        sqlcfUser::flagType requiredFlags = sqlcfUser::F_USERMANAGER | sqlcfUser::F_SERVERADMIN;
+        if ((targetUser != theUser) && !theUser->getFlag(requiredFlags)) {
+            bot->SendTo(theClient,
+                bot->getResponse(theUser,
+                       language::requires_auth_and_flags,
+                       std::string("This command requires authentication and one of these flags: \"%s\"."))
+                    .c_str(),
+                bot->getFlagsString(requiredFlags).c_str());
+            return;
+        }
 
-/* A serveradmin can only view hosts of users in his/her own group. */
-if (theUser->getFlag(sqlcfUser::F_SERVERADMIN) &&
-    !theUser->getFlag(sqlcfUser::F_USERMANAGER)) {
-  if (targetUser->getGroup() != theUser->getGroup()) {
-    bot->SendTo(theClient,
-		bot->getResponse(theUser,
-			language::cant_view_hosts_diff_group,
-			std::string("You cannot view hosts of a user in a different group.")).c_str());
-    return;
-  }
-}
+        /* A serveradmin can only view hosts of users in his/her own group. */
+        if (theUser->getFlag(sqlcfUser::F_SERVERADMIN) && !theUser->getFlag(sqlcfUser::F_USERMANAGER)) {
+            if (targetUser->getGroup() != theUser->getGroup()) {
+                bot->SendTo(theClient,
+                    bot->getResponse(theUser,
+                           language::cant_view_hosts_diff_group,
+                           std::string("You cannot view hosts of a user in a different group."))
+                        .c_str());
+                return;
+            }
+        }
 
-bot->SendTo(theClient,
-	    bot->getResponse(theUser,
-			language::host_list_header,
-			std::string("Host list for %s:")).c_str(),
-			targetUser->getUserName().c_str());
+        bot->SendTo(theClient,
+            bot->getResponse(theUser,
+                   language::host_list_header,
+                   std::string("Host list for %s:"))
+                .c_str(),
+            targetUser->getUserName().c_str());
 
-sqlcfUser::hostListType sqlHostList = targetUser->getHostList();
-if (!sqlHostList.empty()) {
-  for (sqlcfUser::hostListType::iterator itr = sqlHostList.begin();
-       itr != sqlHostList.end(); ++itr)
-    bot->SendTo(theClient, *itr);
-} else {
-  bot->SendTo(theClient, "None.");
-}
+        sqlcfUser::hostListType sqlHostList = targetUser->getHostList();
+        if (!sqlHostList.empty()) {
+            for (sqlcfUser::hostListType::iterator itr = sqlHostList.begin();
+                 itr != sqlHostList.end(); ++itr)
+                bot->SendTo(theClient, *itr);
+        } else {
+            bot->SendTo(theClient, "None.");
+        }
 
-bot->SendTo(theClient,
-	    bot->getResponse(theUser,
-			language::host_list_footer,
-			std::string("End of host list.")).c_str());
+        bot->SendTo(theClient,
+            bot->getResponse(theUser,
+                   language::host_list_footer,
+                   std::string("End of host list."))
+                .c_str());
 
-bot->logAdminMessage("%s (%s) LISTHOSTS %s",
-		     theUser ? theUser->getUserName().c_str() : "!NOT-LOGGED-IN!",
-		     theClient->getRealNickUserHost().c_str(),
-		     targetUser->getUserName().c_str());
+        bot->logAdminMessage("%s (%s) LISTHOSTS %s",
+            theUser ? theUser->getUserName().c_str() : "!NOT-LOGGED-IN!",
+            theClient->getRealNickUserHost().c_str(),
+            targetUser->getUserName().c_str());
 
-bot->logLastComMessage(theClient, Message);
+        bot->logLastComMessage(theClient, Message);
 
-return;
-} //LISTHOSTSCommand::Exec
+        return;
+    } //LISTHOSTSCommand::Exec
 
 } //namespace cf
 } //namespace gnuworld

@@ -19,59 +19,57 @@
  *
  * $Id: ccFloodData.cc,v 1.8 2005/01/12 03:50:29 dan_karrels Exp $
  */
- 
-#include	<string> 
-#include	<iostream>
 
-#include	<ctime>
-#include	<cstring> 
-#include	<cstdlib>
+#include <iostream>
+#include <string>
 
-#include	"ccFloodData.h" 
-#include	"Constants.h"
-#include	"gnuworld_config.h"
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
 
-namespace gnuworld
-{
+#include "Constants.h"
+#include "ccFloodData.h"
+#include "gnuworld_config.h"
 
-using std::string ; 
-using std::endl ; 
+namespace gnuworld {
 
-namespace uworld
-{
+using std::endl;
+using std::string;
 
-unsigned int ccFloodData::numAllocated = 0;
+namespace uworld {
 
-ccFloodData::ccFloodData(const string &_Numeric)
- : Numeric(_Numeric),
-   Logins(0),
-   IgnoreExpires( 0 ),
-   Points(0),
-   lastMessage(0)
+    unsigned int ccFloodData::numAllocated = 0;
 
-{
-++numAllocated;
-}
+    ccFloodData::ccFloodData(const string& _Numeric)
+        : Numeric(_Numeric)
+        , Logins(0)
+        , IgnoreExpires(0)
+        , Points(0)
+        , lastMessage(0)
 
-ccFloodData::~ccFloodData()
-{
---numAllocated;
-}
+    {
+        ++numAllocated;
+    }
 
-bool ccFloodData::addPoints(unsigned int _Points)
-{
-//Check if the flood points needs to be reset
-if((signed)flood::RESET_TIME <   (::time(0) - lastMessage))
-        Points = 0;   
+    ccFloodData::~ccFloodData()
+    {
+        --numAllocated;
+    }
 
-//Update the new flood points
-Points += _Points;
-lastMessage = ::time(0);
+    bool ccFloodData::addPoints(unsigned int _Points)
+    {
+        //Check if the flood points needs to be reset
+        if ((signed)flood::RESET_TIME < (::time(0) - lastMessage))
+            Points = 0;
 
-//We have updated everything, check if the user needs to be silenced
+        //Update the new flood points
+        Points += _Points;
+        lastMessage = ::time(0);
 
-return (Points > flood::FLOOD_POINTS);
-}
- 
+        //We have updated everything, check if the user needs to be silenced
+
+        return (Points > flood::FLOOD_POINTS);
+    }
+
 }
 } //Namespace Gnuworld

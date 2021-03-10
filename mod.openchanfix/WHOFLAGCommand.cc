@@ -23,61 +23,60 @@
  *
  * $Id: WHOFLAGCommand.cc,v 1.1 2006/12/22 03:11:44 buzlip01 Exp $
  */
-#include "gnuworld_config.h"
-#include "chanfix.h"
 #include "Network.h"
-#include "responses.h"
 #include "StringTokenizer.h"
+#include "chanfix.h"
+#include "gnuworld_config.h"
+#include "responses.h"
 #include "sqlcfUser.h"
 
-namespace gnuworld
-{
-namespace cf
-{
+namespace gnuworld {
+namespace cf {
 
-void WHOFLAGCommand::Exec(iClient* theClient, sqlcfUser* theUser, const std::string& Message)
-{
-StringTokenizer st(Message);
-	
-char flag = st[1][0];
-if (st[1].size() > 1) {
-  if (flag == '+')
-    flag = st[1][1];
-  else {
-    bot->SendTo(theClient,
-                bot->getResponse(theUser,
-                                language::one_flag_per_whoflag,
-                                std::string("You may only WHOFLAG one flag.")).c_str());   
-    return;
-  }
-}
+    void WHOFLAGCommand::Exec(iClient* theClient, sqlcfUser* theUser, const std::string& Message)
+    {
+        StringTokenizer st(Message);
 
-if (!bot->getFlagType(flag)) {
-  Usage(theClient);
-  return;
-}
+        char flag = st[1][0];
+        if (st[1].size() > 1) {
+            if (flag == '+')
+                flag = st[1][1];
+            else {
+                bot->SendTo(theClient,
+                    bot->getResponse(theUser,
+                           language::one_flag_per_whoflag,
+                           std::string("You may only WHOFLAG one flag."))
+                        .c_str());
+                return;
+            }
+        }
 
-chanfix::usersIterator ptr = bot->usersMap_begin();
-while (ptr != bot->usersMap_end()) {
-  sqlcfUser* tmpUser = ptr->second;
-  if (tmpUser->getFlag(bot->getFlagType(flag)))
-    bot->SendTo(theClient,
-		std::string("USER: %s   FLAGS: %s   GROUP: %s").c_str(),
-			tmpUser->getUserName().c_str(),
-			(tmpUser->getFlags()) ? std::string("+" + bot->getFlagsString(tmpUser->getFlags())).c_str() : "None",
-			tmpUser->getGroup().c_str());
-  ptr++;
-}
+        if (!bot->getFlagType(flag)) {
+            Usage(theClient);
+            return;
+        }
 
-bot->logAdminMessage("%s (%s) WHOFLAG %s",
-		     theUser ? theUser->getUserName().c_str() : "!NOT-LOGGED-IN!",
-		     theClient->getRealNickUserHost().c_str(), 
-		     st[1].c_str());
+        chanfix::usersIterator ptr = bot->usersMap_begin();
+        while (ptr != bot->usersMap_end()) {
+            sqlcfUser* tmpUser = ptr->second;
+            if (tmpUser->getFlag(bot->getFlagType(flag)))
+                bot->SendTo(theClient,
+                    std::string("USER: %s   FLAGS: %s   GROUP: %s").c_str(),
+                    tmpUser->getUserName().c_str(),
+                    (tmpUser->getFlags()) ? std::string("+" + bot->getFlagsString(tmpUser->getFlags())).c_str() : "None",
+                    tmpUser->getGroup().c_str());
+            ptr++;
+        }
 
-bot->logLastComMessage(theClient, Message);
+        bot->logAdminMessage("%s (%s) WHOFLAG %s",
+            theUser ? theUser->getUserName().c_str() : "!NOT-LOGGED-IN!",
+            theClient->getRealNickUserHost().c_str(),
+            st[1].c_str());
 
-return;
-}
+        bot->logLastComMessage(theClient, Message);
+
+        return;
+    }
 
 } //namespace cf
 } //namespace gnuworld

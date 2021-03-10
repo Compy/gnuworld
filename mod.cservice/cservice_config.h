@@ -85,7 +85,7 @@
  */
 #undef ALLOW_HELLO
 
- /**
+/**
  * Define this if you want to enable the WELCOME feature.
  */
 #undef USE_WELCOME
@@ -139,6 +139,5 @@
  * take care of possible abuse of the function
  */
 #undef GLINE_ON_FLOODPRO
-
 
 #endif // __CSERVICE_CONFIG_H

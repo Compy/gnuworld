@@ -25,46 +25,44 @@
 #ifndef __SQLPENDINGCHANNEL_H
 #define __SQLPENDINGCHANNEL_H "$Id: sqlPendingChannel.h,v 1.8 2007/08/28 16:10:12 dan_karrels Exp $"
 
-#include	<map>
+#include <map>
 
-#include	"sqlPendingTraffic.h"
-#include	"dbHandle.h"
+#include "dbHandle.h"
+#include "sqlPendingTraffic.h"
 
-namespace gnuworld
-{ 
- 
-class sqlPendingChannel
-{
+namespace gnuworld {
+
+class sqlPendingChannel {
 public:
-	sqlPendingChannel(dbHandle*);
-	~sqlPendingChannel();
+    sqlPendingChannel(dbHandle*);
+    ~sqlPendingChannel();
 
-	bool commit();
-	bool commitSupporter(unsigned int, unsigned int);
-	void loadTrafficCache();
-	void loadSupportersTraffic();
+    bool commit();
+    bool commitSupporter(unsigned int, unsigned int);
+    void loadTrafficCache();
+    void loadSupportersTraffic();
 
-	unsigned int channel_id;
-	unsigned int join_count;
-	unsigned int unique_join_count;
-	time_t checkStart;
+    unsigned int channel_id;
+    unsigned int join_count;
+    unsigned int unique_join_count;
+    time_t checkStart;
 
-	typedef std::map < int, int > supporterListType;
-	supporterListType supporterList;
+    typedef std::map<int, int> supporterListType;
+    supporterListType supporterList;
 
-	typedef std::map < string, sqlPendingTraffic* > trafficListType;
-	trafficListType trafficList;
+    typedef std::map<string, sqlPendingTraffic*> trafficListType;
+    trafficListType trafficList;
 
-	//Is this channel first time inited?!
-	bool initialised;
+    //Is this channel first time inited?!
+    bool initialised;
 
-	/* With loadSupportersTraffic() we load the joincounts of every supporter for a given channel
+    /* With loadSupportersTraffic() we load the joincounts of every supporter for a given channel
 	 * in a trafficListType array.
 	 * The sqlPendingTraffic->ip_number we will use for supporter user_id
 	 */
-	trafficListType uniqueSupporterList;
+    trafficListType uniqueSupporterList;
 
-	dbHandle*	SQLDb;
+    dbHandle* SQLDb;
 };
 
 }

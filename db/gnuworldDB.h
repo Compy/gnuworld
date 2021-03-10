@@ -23,34 +23,32 @@
 #ifndef __GNUWORLDDB_H
 #define __GNUWORLDDB_H "$Id: gnuworldDB.h,v 1.5 2009/07/26 18:30:37 mrbean_ Exp $"
 
-#include	<string>
-#include	<sstream>
+#include <sstream>
+#include <string>
 
-#include	<sys/types.h>
+#include <sys/types.h>
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-class gnuworldDB
-{
+class gnuworldDB {
 protected:
-	std::string		dbHost ;
-	unsigned short int	dbPort ;
-	std::string		dbName ;
-	std::string		userName ;
-	std::string		password ;
+    std::string dbHost;
+    unsigned short int dbPort;
+    std::string dbName;
+    std::string userName;
+    std::string password;
 
 public:
-	gnuworldDB() ;
-	gnuworldDB( const std::string& dbHost,
-		const unsigned short int dbPort,
-		const std::string& dbName,
-		const std::string& userName,
-		const std::string& password ) ;
-	gnuworldDB( const std::string& connectInfo ) ;
-	virtual ~gnuworldDB() ;
+    gnuworldDB();
+    gnuworldDB(const std::string& dbHost,
+        const unsigned short int dbPort,
+        const std::string& dbName,
+        const std::string& userName,
+        const std::string& password);
+    gnuworldDB(const std::string& connectInfo);
+    virtual ~gnuworldDB();
 
-	/**
+    /**
 	 * The Exec method will execute an SQL command with the database.
 	 * The "returnData" argument is false by default, and indicated
 	 * whether or not data is expected back.
@@ -61,10 +59,11 @@ public:
 	 * return true if the command was successfully executed
 	 * (with no data returned).
 	 */
-	virtual bool	Exec( const std::stringstream&,
-					bool returnData = false ) = 0 ;
+    virtual bool Exec(const std::stringstream&,
+        bool returnData = false)
+        = 0;
 
-	/**
+    /**
 	 * The Exec method will execute an SQL command with the database.
 	 * The "returnData" argument is false by default, and indicated
 	 * whether or not data is expected back.
@@ -75,39 +74,53 @@ public:
 	 * return true if the command was successfully executed
 	 * (with no data returned).
 	 */
-	virtual bool	Exec( const std::string&,
-				bool returnData = false ) = 0 ;
-	virtual bool	isConnected() const = 0 ;
-	virtual bool	ConnectionBad() const
-	{ return !isConnected() ; }
+    virtual bool Exec(const std::string&,
+        bool returnData = false)
+        = 0;
+    virtual bool isConnected() const = 0;
+    virtual bool ConnectionBad() const
+    {
+        return !isConnected();
+    }
 
-	virtual unsigned int	countTuples() const = 0 ;
-	virtual unsigned int	Tuples() const
-	{ return countTuples() ; }
+    virtual unsigned int countTuples() const = 0;
+    virtual unsigned int Tuples() const
+    {
+        return countTuples();
+    }
 
-	virtual const std::string	ErrorMessage() const = 0 ;
-	virtual const std::string	GetValue( unsigned int row,
-						unsigned int column ) const = 0 ;
-	virtual const std::string	GetValue( unsigned int row,
-						const std::string& colName )
-							const = 0 ;
+    virtual const std::string ErrorMessage() const = 0;
+    virtual const std::string GetValue(unsigned int row,
+        unsigned int column) const = 0;
+    virtual const std::string GetValue(unsigned int row,
+        const std::string& colName)
+        const = 0;
 
-	virtual bool		PutLine( const std::string& ) = 0 ;
-	virtual bool		StartCopyIn( const std::string& ) = 0 ;
-	virtual bool		StopCopyIn() = 0 ;
+    virtual bool PutLine(const std::string&) = 0;
+    virtual bool StartCopyIn(const std::string&) = 0;
+    virtual bool StopCopyIn() = 0;
 
-	inline const std::string&	getDBHost() const
-		{ return dbHost ; }
-	inline const unsigned short int&	getDBPort() const
-		{ return dbPort ; }
-	inline const std::string&	getDBName() const
-		{ return dbName ; }
-	inline const std::string&	getUserName() const
-		{ return userName ; }
-	inline const std::string&	getPassword() const
-		{ return password ; }
-
-} ;
+    inline const std::string& getDBHost() const
+    {
+        return dbHost;
+    }
+    inline const unsigned short int& getDBPort() const
+    {
+        return dbPort;
+    }
+    inline const std::string& getDBName() const
+    {
+        return dbName;
+    }
+    inline const std::string& getUserName() const
+    {
+        return userName;
+    }
+    inline const std::string& getPassword() const
+    {
+        return password;
+    }
+};
 
 } // namespace gnuworld
 

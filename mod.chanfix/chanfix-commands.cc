@@ -17,27 +17,26 @@
  * USA.
  */
 
-#include "chanfix.h"
 #include "chanfix-commands.h"
+#include "chanfix.h"
 
 namespace gnuworld {
 
 namespace chanfix {
 
-bool chanfix::RegisterCommand( Command *theCommand )
-{
-	return commandMap.insert(
-		commandPairType( theCommand->getName() , theCommand )
-	).second;
-}
+    bool chanfix::RegisterCommand(Command* theCommand)
+    {
+        return commandMap.insert(
+                             commandPairType(theCommand->getName(), theCommand))
+            .second;
+    }
 
-void Command::Usage( const iClient *theClient )
-{
-	bot->Notice(theClient, "SYNTAX: %s - %s",
-		getName().c_str(),
-		getHelp().c_str()
-		);
-}
+    void Command::Usage(const iClient* theClient)
+    {
+        bot->Notice(theClient, "SYNTAX: %s - %s",
+            getName().c_str(),
+            getHelp().c_str());
+    }
 
 } // namespace chanfix
 

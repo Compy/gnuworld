@@ -24,50 +24,47 @@
 #include "Network.h"
 #include "StringTokenizer.h"
 
-#include "levels.h"
 #include "dronescan.h"
 #include "dronescanCommands.h"
+#include "levels.h"
 #include "sqlUser.h"
 
 namespace gnuworld {
 
 namespace ds {
 
-void ADDEXCEPTIONALCHANNELCommand::Exec( const iClient *theClient, const string& Message, const sqlUser* theUser )
-{
-	if(theUser->getAccess() < level::addExceptionalChannel) return ;
+    void ADDEXCEPTIONALCHANNELCommand::Exec(const iClient* theClient, const string& Message, const sqlUser* theUser)
+    {
+        if (theUser->getAccess() < level::addExceptionalChannel)
+            return;
 
-	StringTokenizer st(Message);
+        StringTokenizer st(Message);
 
-	/* Usage:
+        /* Usage:
 	 *  ADDEXCEPTIONALCHANNEL <channel name>
 	 */
-	if( st.size() != 2 )
-	{
-		Usage(theClient);
-		return;
-	}
-	if( st[1][0] != '#' )
-	{
-		bot->Reply(theClient,"Channel name must start with #");
-		return;
-	}
-	if(bot->isExceptionalChannel(st[1]))
-	{
-		bot->Reply(theClient, "Channel %s is already an exceptional channel",st[1].c_str());
-		return;
-	}
-	if(!bot->addExceptionalChannel(st[1].c_str()))
-	{
-		bot->Reply(theClient, "Failed to add %s to the exceptional channels list",
-			st[1].c_str());
-	} else {
-		bot->Reply(theClient, "Successfully added %s to the exceptional channels list",
-			st[1].c_str());
-	}
+        if (st.size() != 2) {
+            Usage(theClient);
+            return;
+        }
+        if (st[1][0] != '#') {
+            bot->Reply(theClient, "Channel name must start with #");
+            return;
+        }
+        if (bot->isExceptionalChannel(st[1])) {
+            bot->Reply(theClient, "Channel %s is already an exceptional channel", st[1].c_str());
+            return;
+        }
+        if (!bot->addExceptionalChannel(st[1].c_str())) {
+            bot->Reply(theClient, "Failed to add %s to the exceptional channels list",
+                st[1].c_str());
+        } else {
+            bot->Reply(theClient, "Successfully added %s to the exceptional channels list",
+                st[1].c_str());
+        }
 
-	return ;
-} // ADDEXCEPTIONALCHANNELCommand::Exec(iClient*, const string&)
+        return;
+    } // ADDEXCEPTIONALCHANNELCommand::Exec(iClient*, const string&)
 
 } // namespace ds
 

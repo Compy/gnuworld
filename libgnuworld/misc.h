@@ -25,127 +25,120 @@
 #ifndef __MISC_H
 #define __MISC_H "$Id: misc.h,v 1.9 2007/12/27 20:45:15 kewlio Exp $"
 
-#include	<string>
-#include	<iostream>
+#include <iostream>
+#include <string>
 
-#include	<cctype>
-#include	<cstring>
-#include	<cstdlib>
+#include <cctype>
+#include <cstdlib>
+#include <cstring>
 
-#include	"match.h"
+#include "match.h"
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-using std::string ;
+using std::string;
 /**
  * Return 0 if the two strings are equivalent, according to
  * case insensitive searches.
  * Otherwise, it returns the comparison between
  * s1 and s2.
  */
-int strcasecmp( const string&, const string& ) ;
+int strcasecmp(const string&, const string&);
 
 /**
  * Case insensitive comparison struct for use by STL structures/algorithms.
  */
-struct noCaseCompare
-{
-inline bool operator()( const string& lhs, const string& rhs ) const
-	{
-	return (strcasecmp( lhs, rhs ) < 0) ;
-	}
-} ;
+struct noCaseCompare {
+    inline bool operator()(const string& lhs, const string& rhs) const
+    {
+        return (strcasecmp(lhs, rhs) < 0);
+    }
+};
 
 /**
  * A case insensitive binary predicate comparator for two
  * string's.
  */
-struct eqstr
-{
-inline bool operator()( const string& s1, const string& s2 ) const
-	{
-	return (0 == strcasecmp( s1, s2 )) ;
-	}
-} ;
+struct eqstr {
+    inline bool operator()(const string& s1, const string& s2) const
+    {
+        return (0 == strcasecmp(s1, s2));
+    }
+};
 
 /**
  * A hashing operator for the system hash tables.
  * This is not used for now, since hash_map has been removed
  * from gnuworld completely.
  */
-struct eHash
-{
-inline size_t operator()( const string& s ) const
-	{
-	if( s.empty() )
-		{
-		return 0 ;
-		}
+struct eHash {
+    inline size_t operator()(const string& s) const
+    {
+        if (s.empty()) {
+            return 0;
+        }
 
-	size_t __h = 0 ;
-	for ( const char* ptr = s.c_str() ; *ptr ; ++ptr )
-		{
-		__h = (5 * __h) + tolower( *ptr ) ;
-		}
-	return __h ;
-	}
-} ;
+        size_t __h = 0;
+        for (const char* ptr = s.c_str(); *ptr; ++ptr) {
+            __h = (5 * __h) + tolower(*ptr);
+        }
+        return __h;
+    }
+};
 
 /**
  * A functor suitable for using in STL style containers which provides
  * wildcard matching routine.
  */
-struct Match
-{
-inline bool operator()( const string& lhs, const string& rhs ) const
-	{
-	return (match( lhs, rhs ) < 0) ;
-	}
-} ;
+struct Match {
+    inline bool operator()(const string& lhs, const string& rhs) const
+    {
+        return (match(lhs, rhs) < 0);
+    }
+};
 
 /**
  * Return a copy of a given C++ string, whose characters
  * are all lower case.
  */
-string string_lower( const string& ) ;
+string string_lower(const string&);
 
 /**
  * Return a copy of a given C++ string, whose
  * characters are all upper case.
  */
-string string_upper( const string& ) ;
+string string_upper(const string&);
 
 /**
  * Convert all characters of a given C++ string to
  * lower case.
  */
-void string_tolower( string& ) ;
+void string_tolower(string&);
 
 /**
  * Convert all characters of a given C++ string to
  * upper case.
  */
-void string_toupper( string& ) ;
+void string_toupper(string&);
 
 /**
  * Examine a given C++ string and return true if it contains
  * a time specification, return false otherwise.
  */
-bool IsTimeSpec( const string& ) ;
+bool IsTimeSpec(const string&);
 
 /**
  * Examine a given C++ string and return true if it contains
  * all numeric characters, return false otherwise.
  */
-bool IsNumeric( const string& ) ;
+bool IsNumeric(const string&);
 
 /**
  * Returns the time which is given as #<d/h/m/s> as seconds
  */
-time_t extractTime( string Length, unsigned int defaultUnits ) ;
+time_t extractTime(string Length, unsigned int defaultUnits);
 
-int atoi( const string& ) ;
+int atoi(const string&);
 
 /* itoa:  convert n to characters in s */
 string itoa(int n);
@@ -153,36 +146,36 @@ string itoa(int n);
 /**
  * Extract the parts of a *valid* nick!user@hostip address
  */
-string extractNick( const string& ) ;
+string extractNick(const string&);
 
-string extractUser( const string& ) ;
+string extractUser(const string&);
 
-string extractNickUser( const string& ) ;
+string extractNickUser(const string&);
 
-string extractHostIP( const string& ) ;
+string extractHostIP(const string&);
 
 // Check for valid hostmask.
-bool validUserMask(const string& );
+bool validUserMask(const string&);
 
-bool validCIDRLength(const string& );
+bool validCIDRLength(const string&);
 
-string fixAddress( const string& );
+string fixAddress(const string&);
 
 //Check if we have !at least! a *@hostip format
-bool isUserHost( const string& );
+bool isUserHost(const string&);
 
 bool isAllWildcard(const string&, bool checkfordots = false);
 
 /* Truncate a > /64 IPv6 address to a /64 cidr address
  * or creates a between /32 - /64 valid cidr address
  */
-unsigned char fixToCIDR64(string& );
+unsigned char fixToCIDR64(string&);
 
 //Same as above, just returns the fixed address. Easier to use many times
-string fixToCIDR64(const string& );
+string fixToCIDR64(const string&);
 
 //Constructs a 'generally valid' banmask for a [nick!]user@hostip address
-string createBanMask(const string& );
+string createBanMask(const string&);
 
 /* Create a 24/64 cidr address (optionally wildcarded)
  * for an IPv4 or IPv6 address, or for a hostname
@@ -191,7 +184,7 @@ string createBanMask(const string& );
 string createClass(const string&, bool wildcard = false);
 
 /* Formats a timestamp into a "X Days, XX:XX:XX" from 'Now'. */
-const string prettyDuration( int ) ;
+const string prettyDuration(int);
 
 const string tsToDateTime(time_t, bool);
 

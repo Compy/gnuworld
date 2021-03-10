@@ -19,8 +19,8 @@
 
 #include <new>
 
-#include "gnuworld_config.h"
 #include "Stats.h"
+#include "gnuworld_config.h"
 
 namespace gnuworld {
 
@@ -37,11 +37,11 @@ Stats* Stats::theStats = 0;
  */
 Stats* Stats::getInstance()
 {
-  if(!theStats) theStats = new Stats();
+    if (!theStats)
+        theStats = new Stats();
 
-  return theStats;
+    return theStats;
 }
-
 
 /*********************************
  ** C O N / D E S T R U C T O R **
@@ -61,7 +61,6 @@ Stats::~Stats()
 {
 }
 
-
 /*******************************
  ** S T A T S   C O N T R O L **
  *******************************/
@@ -71,28 +70,27 @@ Stats::~Stats()
  */
 void Stats::incStat(const string& theStat, unsigned int amount)
 {
-  statsMapType::iterator ptr = statsMap.find(theStat);
+    statsMapType::iterator ptr = statsMap.find(theStat);
 
-  if(ptr == statsMap.end()) {
-    statsMap.insert(statsMapType::value_type(theStat, amount));
-  } else {
-    ptr->second += amount;
-  }
+    if (ptr == statsMap.end()) {
+        statsMap.insert(statsMapType::value_type(theStat, amount));
+    } else {
+        ptr->second += amount;
+    }
 }
-
 
 /**
  * This function allows access to a single stats count
  */
 unsigned int Stats::getStat(const string& theStat)
 {
-  statsMapType::const_iterator ptr = statsMap.find(theStat);
+    statsMapType::const_iterator ptr = statsMap.find(theStat);
 
-  if(ptr == statsMap.end()) {
-    return 0;
-   } else {
-    return ptr->second;
-   }
+    if (ptr == statsMap.end()) {
+        return 0;
+    } else {
+        return ptr->second;
+    }
 }
 
 } // namespace gnuworld

@@ -29,53 +29,51 @@
 
 #include "dbHandle.h"
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-namespace cf
-{
+namespace cf {
 
-class sqlManager {
-  public:
-    /**
+    class sqlManager {
+    public:
+        /**
      * Implement sqlManager as a singleton
      * Only way to get a reference to the manager is through this method
      */
-    static sqlManager* getInstance(const std::string&);
+        static sqlManager* getInstance(const std::string&);
 
-    /** Allow checking out of database connections */
-    dbHandle* getConnection();
+        /** Allow checking out of database connections */
+        dbHandle* getConnection();
 
-    /** Allow checking in of database connections */
-    void removeConnection(dbHandle*);
+        /** Allow checking in of database connections */
+        void removeConnection(dbHandle*);
 
-    /** Allow removal of theManager */
-    void removeManager();
+        /** Allow removal of theManager */
+        void removeManager();
 
-  protected:
-    /**
+    protected:
+        /**
      * Disable the default constructor so that instances can only be gotten
      * through getInstance()
      * @see #getInstance
      */
-    sqlManager(const std::string&);
+        sqlManager(const std::string&);
 
-    /**
+        /**
      * Disable the default destructor so that other objects cannot destruct
      * the instance they have a reference to.
      */
-    ~sqlManager();
+        ~sqlManager();
 
-    /** The string storing our DB connection path */
-    std::string dbString;
+        /** The string storing our DB connection path */
+        std::string dbString;
 
-    /** Our PgDatabase instance */
-    dbHandle* SQLDb;
+        /** Our PgDatabase instance */
+        dbHandle* SQLDb;
 
-    /** The current instance of sqlManager */
-    static sqlManager* theManager;
+        /** The current instance of sqlManager */
+        static sqlManager* theManager;
 
-}; // class sqlManager
+    }; // class sqlManager
 
 } // namespace cf
 

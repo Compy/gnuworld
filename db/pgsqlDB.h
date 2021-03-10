@@ -23,51 +23,48 @@
 #ifndef __PGSQLDB_H
 #define __PGSQLDB_H "$Id: pgsqlDB.h,v 1.3 2007/08/28 16:09:59 dan_karrels Exp $"
 
-#include	<sys/types.h>
+#include <sys/types.h>
 
-#include	<string>
-#include	<exception>
+#include <exception>
+#include <string>
 
-#include	"libpq-fe.h"
-#include	"gnuworldDB.h"
+#include "gnuworldDB.h"
+#include "libpq-fe.h"
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-class pgsqlDB : public gnuworldDB
-{
+class pgsqlDB : public gnuworldDB {
 protected:
-	PGconn			*theDB ;
-	PGresult		*lastResult ;
+    PGconn* theDB;
+    PGresult* lastResult;
 
 public:
-	pgsqlDB( const std::string& dbHost,
-		const unsigned short int dbPort,
-		const std::string& dbName,
-		const std::string& userName,
-		const std::string& password ) throw( std::exception ) ;
-	pgsqlDB( const std::string& connectInfo ) throw( std::exception ) ;
-	virtual ~pgsqlDB() ;
+    pgsqlDB(const std::string& dbHost,
+        const unsigned short int dbPort,
+        const std::string& dbName,
+        const std::string& userName,
+        const std::string& password) throw(std::exception);
+    pgsqlDB(const std::string& connectInfo) throw(std::exception);
+    virtual ~pgsqlDB();
 
-	virtual bool		Exec( const std::string&, bool = false ) ;
-	virtual bool		Exec( const std::stringstream&, bool = false ) ;
-	virtual bool		isConnected() const ;
+    virtual bool Exec(const std::string&, bool = false);
+    virtual bool Exec(const std::stringstream&, bool = false);
+    virtual bool isConnected() const;
 
-	virtual bool		PutLine( const std::string& ) ;
-	virtual bool		StartCopyIn( const std::string& ) ;
-	virtual bool		StopCopyIn() ;
+    virtual bool PutLine(const std::string&);
+    virtual bool StartCopyIn(const std::string&);
+    virtual bool StopCopyIn();
 
-	virtual unsigned int	countTuples() const ;
-	virtual const std::string	ErrorMessage() const ;
+    virtual unsigned int countTuples() const;
+    virtual const std::string ErrorMessage() const;
 
-	// tuple number, field number (row,col)
-	virtual const std::string	GetValue( unsigned int,
-						unsigned int ) const ;
-	virtual const std::string	GetValue( unsigned int row,
-						const std::string& colName )
-						const ;
-
-} ;
+    // tuple number, field number (row,col)
+    virtual const std::string GetValue(unsigned int,
+        unsigned int) const;
+    virtual const std::string GetValue(unsigned int row,
+        const std::string& colName)
+        const;
+};
 
 } // namespace gnuworld
 

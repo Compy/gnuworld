@@ -20,22 +20,21 @@
  * $Id: msg_DS.cc,v 1.4 2005/03/25 03:07:29 dan_karrels Exp $
  */
 
-#include	"gnuworld_config.h"
-#include	"server.h"
-#include	"xparameters.h"
-#include	"ServerCommandHandler.h"
+#include "ServerCommandHandler.h"
+#include "gnuworld_config.h"
+#include "server.h"
+#include "xparameters.h"
 
-namespace gnuworld
-{
+namespace gnuworld {
 
 CREATE_HANDLER(msg_DS)
 
 // DeSynch handler?
 // 0 DS :HACK: JavaDude MODE #irc.core.com +smtink lamers [957881646]
-bool msg_DS::Execute( const xParameters& )
+bool msg_DS::Execute(const xParameters&)
 {
-// TODO
-return true ;
+    // TODO
+    return true;
 }
 
 } // namespace gnuworld

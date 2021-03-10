@@ -21,101 +21,97 @@
  * $Id: ELog.cc,v 1.8 2005/02/20 15:49:21 dan_karrels Exp $
  */
 
-#include	<iostream>
-#include	<fstream>
-#include	<sstream>
-#include	<string>
-#include	<ctime>
-#include	"ELog.h"
+#include "ELog.h"
+#include <ctime>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-using std::stringstream ;
-using std::string ;
-using std::endl ;
+using std::endl;
+using std::string;
+using std::stringstream;
 
 // Instantiate the global instance
-ELog	elog ;
+ELog elog;
 
 ELog::ELog()
- : outStream( 0 ),
-   logFile( false ),
-   newline(true)
-{}
-
-ELog::ELog( const string& fileName )
- : outStream( 0 ),
-   logFile( false ),
-   newline(true)
+    : outStream(0)
+    , logFile(false)
+    , newline(true)
 {
-openFile( fileName ) ;
+}
+
+ELog::ELog(const string& fileName)
+    : outStream(0)
+    , logFile(false)
+    , newline(true)
+{
+    openFile(fileName);
 }
 
 ELog::~ELog()
 {
-if( logFile )
-	{
- 	closeFile() ;
-	}
+    if (logFile) {
+        closeFile();
+    }
 }
 
-bool ELog::openFile( const string& fileName )
+bool ELog::openFile(const string& fileName)
 {
-if( isOpen() )
-	{
-	closeFile() ;
-	}
-logFile = true ;
-outFile.open( fileName.c_str(), std::ios::out | std::ios::trunc ) ;
+    if (isOpen()) {
+        closeFile();
+    }
+    logFile = true;
+    outFile.open(fileName.c_str(), std::ios::out | std::ios::trunc);
 
-if( !isOpen() )
-	{
-	logFile = false ;
-	}
-return isOpen() ;
+    if (!isOpen()) {
+        logFile = false;
+    }
+    return isOpen();
 }
 
 void ELog::closeFile()
 {
-if( isOpen() )
-	{
-	outFile << endl ;
-	outFile.close() ;
-	}
+    if (isOpen()) {
+        outFile << endl;
+        outFile.close();
+    }
 }
 
-ELog& ELog::operator<<( __E_omanip var )
+ELog& ELog::operator<<(__E_omanip var)
 {
-if( logFile )
-	{
-	outFile	<< var ;
-	}
-if( outStream ) *outStream << var ;
-newline = true;
-return *this ;
+    if (logFile) {
+        outFile << var;
+    }
+    if (outStream)
+        *outStream << var;
+    newline = true;
+    return *this;
 }
 
-ELog& ELog::operator<<( __E_manip var )
+ELog& ELog::operator<<(__E_manip var)
 {
-if( logFile )
-	{
-	outFile	<< var ;
-	}
-if( outStream ) *outStream << var ;
-newline = true;
-return *this ;
+    if (logFile) {
+        outFile << var;
+    }
+    if (outStream)
+        *outStream << var;
+    newline = true;
+    return *this;
 }
 
 std::string ELog::getLocalTime()
 {
-	  time_t theTime;
-	  time(&theTime);  /* get current time; same as: theTime = time(NULL)  */
-	  struct tm* timeinfo = localtime(&theTime);
-	  char buffer[20] = {0};
+    time_t theTime;
+    time(&theTime); /* get current time; same as: theTime = time(NULL)  */
+    struct tm* timeinfo = localtime(&theTime);
+    char buffer[20] = { 0 };
 
-	  std::strftime(buffer,20,"%Y-%m-%d %H:%M:%S",timeinfo);
-	  return string("[" + string(buffer) + "] ");
+    std::strftime(buffer, 20, "%Y-%m-%d %H:%M:%S", timeinfo);
+    return string("[" + string(buffer) + "] ");
 }
 
 } // namespace gnuworld

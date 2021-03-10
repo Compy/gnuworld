@@ -29,50 +29,50 @@ namespace gnuworld {
 
 namespace logging {
 
-using std::string ;
-using std::vector ;
+    using std::string;
+    using std::vector;
 
-class Logger {
+    class Logger {
 
-  public:
-    /**
+    public:
+        /**
      * Implement Logger as a singleton. This method is the only way to get
      * a reference to a Logger instance.
      */
-    static Logger* getInstance();
+        static Logger* getInstance();
 
-    /**
+        /**
      * Allow registration of a new logTarget
      */
-    void addLogger(logTarget*);
+        void addLogger(logTarget*);
 
-    /**
+        /**
      * Allow logging of messages
      */
-    void log(const events::eventType&, const string&);
-    void log(const events::eventType&, const char*, ... );
+        void log(const events::eventType&, const string&);
+        void log(const events::eventType&, const char*, ...);
 
-    /**
+        /**
      * Type to contain logTargets
      */
-    typedef vector< logTarget* > logTargetsType;
+        typedef vector<logTarget*> logTargetsType;
 
-    /**
+        /**
      * Container for logTargets
      */
-    logTargetsType logTargets;
+        logTargetsType logTargets;
 
-  protected:
-    /** Empty constructor */
-    Logger();
+    protected:
+        /** Empty constructor */
+        Logger();
 
-    /** Empty destructor */
-    ~Logger();
+        /** Empty destructor */
+        ~Logger();
 
-    /** Current instance of Logger */
-    static Logger* theLogger;
+        /** Current instance of Logger */
+        static Logger* theLogger;
 
-}; // class Logger
+    }; // class Logger
 
 } // namespace logging
 

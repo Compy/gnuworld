@@ -21,69 +21,66 @@
  * $Id: Buffer.cc,v 1.6 2003/07/20 14:13:15 dan_karrels Exp $
  */
 
-#include	<string>
-#include	"Buffer.h"
+#include "Buffer.h"
+#include <string>
 
-namespace gnuworld
+namespace gnuworld {
+
+using std::string;
+
+Buffer::Buffer(char delimiter)
+    : delim(delimiter)
 {
-
-using std::string ;
-
-Buffer::Buffer( char delimiter )
- : delim( delimiter )
-{}
+}
 
 Buffer::~Buffer()
-{ /* No heap space allocated */ }
+{ /* No heap space allocated */
+}
 
-bool Buffer::ReadLine( string& retMe )
+bool Buffer::ReadLine(string& retMe)
 {
-/* remove any leading new line characters */
-while( !empty() && ('\n' == buf[ 0 ]) )
-	{
-	/* just remove the first char */
-	buf.erase( buf.begin() ) ;
-	}
+    /* remove any leading new line characters */
+    while (!empty() && ('\n' == buf[0])) {
+        /* just remove the first char */
+        buf.erase(buf.begin());
+    }
 
-/* Check to see if there is anything left */
-if( empty() )
-	{
-	return false ;
-	}
+    /* Check to see if there is anything left */
+    if (empty()) {
+        return false;
+    }
 
-/* find() returns the index of the character, or 
+    /* find() returns the index of the character, or 
  * npos if it was not found
  */
-size_type pos = buf.find( delim ) ;
+    size_type pos = buf.find(delim);
 
-if( string::npos == pos )
-	{
-	// Unable to find the delimiter
-	return false ;
-	}
+    if (string::npos == pos) {
+        // Unable to find the delimiter
+        return false;
+    }
 
-// else I need to add this substring into retMe
-// and remove it from buf
-retMe = buf.substr( 0, pos + 1 ) ;
-buf.erase( 0, pos + 1 ) ;
+    // else I need to add this substring into retMe
+    // and remove it from buf
+    retMe = buf.substr(0, pos + 1);
+    buf.erase(0, pos + 1);
 
-return true ;
+    return true;
 }
 
 // Delete numBytes bytes from the beginning
 // of the Buffer
-void Buffer::Delete( const size_type& numBytes )
+void Buffer::Delete(const size_type& numBytes)
 {
-if( numBytes >= size() )
-	{
-	// Clear the entire Buffer
-//	buf.clear() ;
-	buf.erase() ;
-	return ;
-	}
+    if (numBytes >= size()) {
+        // Clear the entire Buffer
+        //	buf.clear() ;
+        buf.erase();
+        return;
+    }
 
-// Else just erase the number of bytes given
-buf.erase( 0, numBytes ) ;
+    // Else just erase the number of bytes given
+    buf.erase(0, numBytes);
 }
 
 } // namespace gnuworld

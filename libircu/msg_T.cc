@@ -20,88 +20,82 @@
  * $Id: msg_T.cc,v 1.8 2005/06/20 11:26:33 kewlio Exp $
  */
 
-#include	<string>
-#include	<iostream>
+#include <iostream>
+#include <string>
 
-#include	"gnuworld_config.h"
-#include	"ip.h"
-#include	"server.h"
-#include	"xparameters.h"
-#include	"Network.h"
-#include	"ELog.h"
-#include	"Channel.h"
-#include	"ServerCommandHandler.h"
+#include "Channel.h"
+#include "ELog.h"
+#include "Network.h"
+#include "ServerCommandHandler.h"
+#include "gnuworld_config.h"
+#include "ip.h"
+#include "server.h"
+#include "xparameters.h"
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-using std::endl ;
+using std::endl;
 
 CREATE_HANDLER(msg_T)
 
 // Channel topics currently are not tracked.
 // kAI T #omniplex :-=[ Washington.DC.US.Krushnet.Org / Luxembourg.
 // LU.EU.KrushNet.Org Admin Channel ]=-
-bool msg_T::Execute( const xParameters& Param )
+bool msg_T::Execute(const xParameters& Param)
 {
-if( Param.size() < 3 )
-	{
-	elog	<< "msg_T> Invalid number of arguments"
-		<< endl ;
-	return false ;
-	}
+    if (Param.size() < 3) {
+        elog << "msg_T> Invalid number of arguments"
+             << endl;
+        return false;
+    }
 
-Channel* theChan = Network->findChannel( Param[ 1 ] ) ;
-if( 0 == theChan )
-	{
-	elog	<< "msg_T> Unable to locate channel: "
-		<< Param[ 1 ]
-		<< endl;
-	return false ;
-	}
+    Channel* theChan = Network->findChannel(Param[1]);
+    if (0 == theChan) {
+        elog << "msg_T> Unable to locate channel: "
+             << Param[1]
+             << endl;
+        return false;
+    }
 
-// srcClient may be NULL if a server is setting the topic
-iClient* srcClient = Network->findClient( Param[ 0 ] ) ;
-std::string newTopic;
+    // srcClient may be NULL if a server is setting the topic
+    iClient* srcClient = Network->findClient(Param[0]);
+    std::string newTopic;
 
-if (Param.size() == 5)
-{
-	/* this is a .12 hub! */
-	/* params = numeric, channel, channel creation ts, topic ts, topic */
-	newTopic = Param[ 4 ];
+    if (Param.size() == 5) {
+        /* this is a .12 hub! */
+        /* params = numeric, channel, channel creation ts, topic ts, topic */
+        newTopic = Param[4];
 #ifdef TOPIC_TRACK
-	theChan->setTopic(Param[4]);
-	theChan->setTopicTS(atoi(Param[3]));
+        theChan->setTopic(Param[4]);
+        theChan->setTopicTS(atoi(Param[3]));
 #endif // TOPIC_TRACK
-} else {
-	/* this is a .11 hub! (3 arguments) */
-	/* params = numeric, channel, topic */
-	newTopic = Param[ 2 ];
+    } else {
+        /* this is a .11 hub! (3 arguments) */
+        /* params = numeric, channel, topic */
+        newTopic = Param[2];
 #ifdef TOPIC_TRACK
-	theChan->setTopic(Param[2]);
-	theChan->setTopicTS(::time(NULL));
+        theChan->setTopic(Param[2]);
+        theChan->setTopicTS(::time(NULL));
 #endif // TOPIC_TRACK
-}
+    }
 #ifdef TOPIC_TRACK
-if (srcClient == NULL)
-{
-	theChan->setTopicWhoSet("unknown");
-} else {
-	std::string client_ip;
-	client_ip = xIP(srcClient->getIP()).GetNumericIP();
-	theChan->setTopicWhoSet(srcClient->getNickUserHost() + " [" + client_ip + "]");
-}
+    if (srcClient == NULL) {
+        theChan->setTopicWhoSet("unknown");
+    } else {
+        std::string client_ip;
+        client_ip = xIP(srcClient->getIP()).GetNumericIP();
+        theChan->setTopicWhoSet(srcClient->getNickUserHost() + " [" + client_ip + "]");
+    }
 #endif // TOPIC_TRACK
 
+    // No need to pass the new topic, it has already been stored
+    // in the theChan
+    theServer->PostChannelEvent(EVT_TOPIC,
+        theChan,
+        static_cast<void*>(srcClient),
+        static_cast<void*>(&newTopic));
 
-// No need to pass the new topic, it has already been stored
-// in the theChan
-theServer->PostChannelEvent( EVT_TOPIC,
-	theChan,
-	static_cast< void* >( srcClient ),
-	static_cast< void* >( &newTopic ) ) ;
-
-return true ;
+    return true;
 }
 
 } // namespace gnuworld

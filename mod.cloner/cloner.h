@@ -26,61 +26,57 @@
 #ifndef __CLONER_H
 #define __CLONER_H "$Id: cloner.h,v 1.10 2004/06/04 20:17:23 jeekay Exp $"
 
-#include	<string>
-#include	<vector>
-#include	<list>
+#include <list>
+#include <string>
+#include <vector>
 
-#include	<ctime>
+#include <ctime>
 
-#include	"client.h"
-#include	"iClient.h"
-#include	"iServer.h"
+#include "client.h"
+#include "iClient.h"
+#include "iServer.h"
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-class cloner : public xClient
-{
+class cloner : public xClient {
 
 public:
-	cloner( const std::string& configFileName ) ;
-	virtual ~cloner() ;
+    cloner(const std::string& configFileName);
+    virtual ~cloner();
 
-	virtual void OnConnect() ;
-	virtual void OnTimer( const xServer::timerID&, void* ) ;
-	virtual void OnPrivateMessage( iClient*, const std::string&,
-			bool secure = false ) ;
-	virtual void addClone() ;
+    virtual void OnConnect();
+    virtual void OnTimer(const xServer::timerID&, void*);
+    virtual void OnPrivateMessage(iClient*, const std::string&,
+        bool secure = false);
+    virtual void addClone();
 
 protected:
+    virtual bool hasAccess(const std::string&) const;
 
-	virtual bool		hasAccess( const std::string& ) const ;
+    virtual std::string randomNick(int minLength = 5,
+        int maxLength = 9);
+    virtual std::string randomUser();
+    virtual std::string randomHost();
+    virtual char randomChar();
 
-	virtual std::string	randomNick( int minLength = 5,
-					int maxLength = 9 ) ;
-	virtual std::string	randomUser() ;
-	virtual std::string	randomHost() ;
-	virtual char		randomChar() ;
+    std::list<std::string> allowAccess;
+    std::list<iClient*> clones;
+    std::vector<std::string> userNames;
+    std::vector<std::string> hostNames;
+    iServer* fakeServer;
 
-	std::list< std::string >	allowAccess ;
-	std::list< iClient* >		clones ;
-	std::vector< std::string >	userNames ;
-	std::vector< std::string >	hostNames ;
-	iServer*		fakeServer ;
+    bool allowOpers;
 
-	bool			allowOpers ;
+    size_t makeCloneCount;
+    size_t cloneBurstCount;
+    size_t minNickLength;
+    size_t maxNickLength;
 
-	size_t			makeCloneCount ;
-	size_t			cloneBurstCount ;
-	size_t			minNickLength ;
-	size_t			maxNickLength ;
-
-	std::string		cloneDescription ;
-	std::string		cloneMode ;
-	std::string		fakeServerName ;
-	std::string		fakeServerDescription ;
-
-} ;
+    std::string cloneDescription;
+    std::string cloneMode;
+    std::string fakeServerName;
+    std::string fakeServerDescription;
+};
 
 } // namespace gnuworld
 

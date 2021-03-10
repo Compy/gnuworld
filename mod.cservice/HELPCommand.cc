@@ -24,49 +24,45 @@
  * $Id: HELPCommand.cc,v 1.5 2003/06/28 01:21:20 dan_karrels Exp $
  */
 
-#include	<string>
+#include <string>
 
-#include	"StringTokenizer.h"
-#include	"ELog.h"
-#include	"cservice.h"
-#include 	"responses.h"
+#include "ELog.h"
+#include "StringTokenizer.h"
+#include "cservice.h"
+#include "responses.h"
 
-namespace gnuworld
-{
+namespace gnuworld {
 using namespace gnuworld;
 
-bool HELPCommand::Exec( iClient* theClient, const string& Message )
+bool HELPCommand::Exec(iClient* theClient, const string& Message)
 {
-	bot->incStat("COMMANDS.HELP");
-	StringTokenizer st( Message ) ;
+    bot->incStat("COMMANDS.HELP");
+    StringTokenizer st(Message);
 
-	if( st.size() < 2 )
-	{
-		Usage(theClient);
-		return true;
-	}
+    if (st.size() < 2) {
+        Usage(theClient);
+        return true;
+    }
 
-	sqlUser* theUser = bot->isAuthed(theClient, false);
-	string topic = string_upper(st.assemble(1));
-	string msg = bot->getHelpMessage(theUser, topic);
+    sqlUser* theUser = bot->isAuthed(theClient, false);
+    string topic = string_upper(st.assemble(1));
+    string msg = bot->getHelpMessage(theUser, topic);
 
-	if (msg.empty())
-	msg = bot->getHelpMessage(theUser, "INDEX");
+    if (msg.empty())
+        msg = bot->getHelpMessage(theUser, "INDEX");
 
-	if (!msg.empty())
-	{
-		bot->Notice(theClient, msg);
-		return true;
-	}
-	else
-		msg = bot->getHelpMessage(NULL, topic);
+    if (!msg.empty()) {
+        bot->Notice(theClient, msg);
+        return true;
+    } else
+        msg = bot->getHelpMessage(NULL, topic);
 
-	if (!msg.empty())
-		bot->Notice(theClient, msg);
-	else
-		bot->Notice(theClient, "There is no help available for that topic.");
+    if (!msg.empty())
+        bot->Notice(theClient, msg);
+    else
+        bot->Notice(theClient, "There is no help available for that topic.");
 
-	return true ;
+    return true;
 }
 
 } // namespace gnuworld.

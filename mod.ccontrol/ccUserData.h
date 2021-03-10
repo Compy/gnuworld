@@ -22,48 +22,50 @@
 #ifndef __CCUSERDATA_H_
 #define __CCUSERDATA_H_
 
-#include "iClient.h"
-#include "ccUser.h"
 #include "ccFloodData.h"
+#include "ccUser.h"
+#include "iClient.h"
 
-namespace gnuworld
-{
+namespace gnuworld {
 
-namespace uworld
-{
+namespace uworld {
 
-class ccUserData
-{
+    class ccUserData {
 
-public:
-	
-	ccUserData(ccFloodData* tFlood = NULL,ccUser* tDbUser = NULL) 
-	: flood(tFlood),
-	dbUser(tDbUser) 
-	{}
-	
-	virtual ~ccUserData(){}
-	
-	inline ccUser* getDbUser() const
-		{ return dbUser; }
-		
-	inline ccFloodData* getFlood() const
-		{ return flood; }
-	
-	inline void setDbUser(ccUser* _dbUser) 
-		{ dbUser = _dbUser; }
-	
-	inline void setFlood(ccFloodData* _flood) 
-		{ flood = _flood; }
-protected:
+    public:
+        ccUserData(ccFloodData* tFlood = NULL, ccUser* tDbUser = NULL)
+            : flood(tFlood)
+            , dbUser(tDbUser)
+        {
+        }
 
-	
-	ccFloodData* flood;	
+        virtual ~ccUserData() { }
 
-	ccUser* dbUser;
+        inline ccUser* getDbUser() const
+        {
+            return dbUser;
+        }
 
+        inline ccFloodData* getFlood() const
+        {
+            return flood;
+        }
 
-};
+        inline void setDbUser(ccUser* _dbUser)
+        {
+            dbUser = _dbUser;
+        }
+
+        inline void setFlood(ccFloodData* _flood)
+        {
+            flood = _flood;
+        }
+
+    protected:
+        ccFloodData* flood;
+
+        ccUser* dbUser;
+    };
 
 }
 }

@@ -23,55 +23,49 @@
 
 #include "cfChannel.h"
 #include "cfChannelUser.h"
-#include "chanfix.h"
 #include "chanfix-commands.h"
+#include "chanfix.h"
 
 namespace gnuworld {
 
 namespace chanfix {
 
-void CHECKCommand::Exec( const iClient *theClient,
-	const std::string& message )
-{
-	StringTokenizer st(message);
+    void CHECKCommand::Exec(const iClient* theClient,
+        const std::string& message)
+    {
+        StringTokenizer st(message);
 
-	/* Usage:
+        /* Usage:
 	 *  CHECK #channel
 	 */
 
-	if( st.size() != 2 ) {
-		Usage(theClient);
-		return;
-	}
+        if (st.size() != 2) {
+            Usage(theClient);
+            return;
+        }
 
-	cfChannel *theChannel = bot->getChannel(st[1], false);
+        cfChannel* theChannel = bot->getChannel(st[1], false);
 
-	if( ! theChannel ) {
-		bot->Notice(theClient, "Unable to find channel %s",
-			st[1].c_str()
-			);
-		return;
-	} else {
-		bot->Notice(theClient, "Status for %s:",
-			st[1].c_str()
-			);
-	}
+        if (!theChannel) {
+            bot->Notice(theClient, "Unable to find channel %s",
+                st[1].c_str());
+            return;
+        } else {
+            bot->Notice(theClient, "Status for %s:",
+                st[1].c_str());
+        }
 
+        for (cfChannel::mapUsersConstIterator itr = theChannel->getUsersBegin();
+             itr != theChannel->getUsersEnd();
+             ++itr) {
+            cfChannelUser* theCU = itr->second;
 
-	for(cfChannel::mapUsersConstIterator itr = theChannel->getUsersBegin() ;
-		itr != theChannel->getUsersEnd() ;
-		++itr
-	) {
-		cfChannelUser *theCU = itr->second;
-
-		bot->Notice(theClient, "  %s: %u",
-			theCU->getName().c_str(),
-			theCU->getPoints()
-			);
-	}
-}
+            bot->Notice(theClient, "  %s: %u",
+                theCU->getName().c_str(),
+                theCU->getPoints());
+        }
+    }
 
 } // namespace chanfix
 
 } // namespace gnuworld
-
